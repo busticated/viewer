@@ -149,10 +149,7 @@ define( [ 'jquery', 'handlebars', 'libs/Iterator', 'libs/polyfills', 'libs/waypo
 
         v.each( function( post, idx ){
             if ( idx >= insertFrom ){
-                post.data( 'postIdx', idx ).appendTo( '#js-poststream' );
-                if ( idx % v.options.postsShown ){
-                    post.waypoint();
-                }
+                post.data( 'postIdx', idx ).appendTo( '#js-poststream' ).waypoint();
             }
         });
     };
