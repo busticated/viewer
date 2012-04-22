@@ -1,0 +1,462 @@
+// Generl Utilities
+// ----------------------------------------------------------------------------
+
+.clearfix {
+	*zoom: 1;
+
+	&:before,
+	&:after {
+		display: table;
+		content: "";
+	}
+	&:after {
+		clear: both;
+	}
+}
+
+.tab-focus() {
+	// Default
+	outline: thin dotted #333;
+	// Webkit
+	outline: 5px auto -webkit-focus-ring-color;
+	outline-offset: -2px;
+}
+
+.center-block() {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.ie7-inline-block() {
+	*display: inline; /* IE7 inline-block hack */
+	*zoom: 1;
+}
+
+// IE7 likes to collapse whitespace on either side of the inline-block elements.
+// Ems because we're attempting to match the width of a space character. Left
+// version is for form buttons, which typically come after other elements, and
+// right version is for icons, which come before. Applying both is ok, but it will
+// mean that space between those elements will be .6em (~2 space characters) in IE7,
+// instead of the 1 space in other browsers.
+.ie7-restore-left-whitespace() {
+	*margin-left: .3em;
+
+	&:first-child {
+		*margin-left: 0;
+	}
+}
+
+.ie7-restore-right-whitespace() {
+	*margin-right: .3em;
+
+	&:last-child {
+		*margin-left: 0;
+	}
+}
+
+.size(@height: 5px, @width: 5px) {
+	width: @width;
+	height: @height;
+}
+
+.square(@size: 5px) {
+	.size(@size, @size);
+}
+
+.placeholder(@color: @placeholderText) {
+	:-moz-placeholder {
+		color: @color;
+	}
+	::-webkit-input-placeholder {
+		color: @color;
+	}
+}
+
+// Requires inline-block or block for proper styling
+.text-overflow() {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+// New image replacement
+// Source: http://www.zeldman.com/2012/03/01/replacing-the-9999px-hack-new-image-replacement/
+.hide-text {
+	overflow: hidden;
+	text-indent: 100%;
+	white-space: nowrap;
+}
+
+// CSS3 PROPERTIES
+// ----------------------------------------------------------------------------
+.user-select( @val ){
+	-webkit-touch-callout: @val;
+	-webkit-user-select: @val;
+	-khtml-user-select: @val;
+	-moz-user-select: @val;
+	-ms-user-select: @val;
+	user-select: @val;
+}
+
+.border-radius(@radius: 5px) {
+	-webkit-border-radius: @radius;
+	-moz-border-radius: @radius;
+	border-radius: @radius;
+}
+
+.box-shadow(@shadow: 0 1px 3px rgba(0,0,0,.25)) {
+	-webkit-box-shadow: @shadow;
+	-moz-box-shadow: @shadow;
+	box-shadow: @shadow;
+}
+
+.transition(@transition) {
+	-webkit-transition: @transition;
+	-moz-transition: @transition;
+	-ms-transition: @transition;
+	-o-transition: @transition;
+	transition: @transition;
+}
+
+.rotate(@degrees) {
+	-webkit-transform: rotate(@degrees);
+	-moz-transform: rotate(@degrees);
+	-ms-transform: rotate(@degrees);
+	-o-transform: rotate(@degrees);
+	transform: rotate(@degrees);
+}
+
+.scale(@ratio) {
+	-webkit-transform: scale(@ratio);
+	-moz-transform: scale(@ratio);
+	-ms-transform: scale(@ratio);
+	-o-transform: scale(@ratio);
+	transform: scale(@ratio);
+}
+
+.translate(@x: 0, @y: 0) {
+	-webkit-transform: translate(@x, @y);
+	-moz-transform: translate(@x, @y);
+	-ms-transform: translate(@x, @y);
+	-o-transform: translate(@x, @y);
+	transform: translate(@x, @y);
+}
+
+.skew(@x: 0, @y: 0) {
+	-webkit-transform: skew(@x, @y);
+	-moz-transform: skew(@x, @y);
+	-ms-transform: skew(@x, @y);
+	-o-transform: skew(@x, @y);
+	transform: skew(@x, @y);
+}
+
+.translate3d(@x: 0, @y: 0, @z: 0) {
+	-webkit-transform: translate(@x, @y, @z);
+	-moz-transform: translate(@x, @y, @z);
+	-ms-transform: translate(@x, @y, @z);
+	-o-transform: translate(@x, @y, @z);
+	transform: translate(@x, @y, @z);
+}
+
+.background-clip(@clip) {
+	-webkit-background-clip: @clip;
+	-moz-background-clip: @clip;
+	background-clip: @clip;
+}
+
+.background-size(@size){
+	-webkit-background-size: @size;
+	-moz-background-size: @size;
+	-o-background-size: @size;
+	background-size: @size;
+}
+
+.box-sizing(@boxmodel) {
+	-webkit-box-sizing: @boxmodel;
+	-moz-box-sizing: @boxmodel;
+	-ms-box-sizing: @boxmodel;
+	box-sizing: @boxmodel;
+}
+
+.user-select(@select) {
+	-webkit-user-select: @select;
+	-moz-user-select: @select;
+	-o-user-select: @select;
+	user-select: @select;
+}
+
+.resizable(@direction: both) {
+	resize: @direction; // Options: horizontal, vertical, both
+	overflow: auto; // Safari fix
+}
+
+.content-columns(@columnCount, @columnGap: @gridColumnGutter) {
+	-webkit-column-count: @columnCount;
+	-moz-column-count: @columnCount;
+	column-count: @columnCount;
+	-webkit-column-gap: @columnGap;
+	-moz-column-gap: @columnGap;
+	column-gap: @columnGap;
+}
+
+.opacity(@opacity: 100) {
+	opacity: @opacity / 100;
+	filter: ~"alpha(opacity=@{opacity})";
+}
+
+// Animations
+// ----------------------------------------------------------------------------
+#animation {
+	.add(@name){
+		#animation > .type(@name);
+	}
+	.use(@animation){
+		-webkit-animation: @animation;
+		-moz-animation: @animation;
+		-ms-animation: @animation;
+		-o-animation: @animation; /* NYI */
+		animation: @animation;
+	}
+	.type(bounce) {
+		@-webkit-keyframes bounce {
+			0%   { -webkit-transform: translateY(0px); }
+			25%  { -webkit-transform: translateY(-1px); }
+			50%  { -webkit-transform: translateY(-2px); }
+			75%  { -webkit-transform: translateY(-1px); }
+			100% { -webkit-transform: translateY(0px); }
+		}
+
+		@-moz-keyframes bounce {
+			0%   { -moz-transform: translateY(0px); }
+			25%  { -moz-transform: translateY(-1px); }
+			50%  { -moz-transform: translateY(-2px); }
+			75%  { -moz-transform: translateY(-1px); }
+			100% { -moz-transform: translateY(0px); }
+		}
+
+		@keyframes bounce {
+			0%   { transform: translateY(0px); }
+			25%  { transform: translateY(-1px); }
+			50%  { transform: translateY(-2px); }
+			75%  { transform: translateY(-1px); }
+			100% { transform: translateY(0px); }
+		}
+	}
+}
+
+// Fonts
+// ----------------------------------------------------------------------------
+#font {
+	#stack {
+		.use(glyph){
+			font-family: Glyphs;
+		}
+		.use(regular){
+			font-family: ProximaNova, Helvetica, Arial, sans-serif;
+		}
+		.use(condensed){
+			font-family: ProximaNovaCond, Helvetica, Arial, sans-serif;
+		}
+		.use(sans){
+			font-family: sans-serif;
+		}
+	}
+	#size {
+		.use(@size){
+			font-size: @size;
+		}
+		.use(@size, @containerWidth) when(isnumber(@size)) and (isnumber(@containerWidth)){
+			font-size: @size / @containerWidth + 0em;
+		}
+	}
+	#weight {
+		.use(normal){
+			font-weight: normal;
+		}
+		.use(regular){
+			font-weight: 400;
+		}
+		.use(semibold){
+			font-weight: 600;
+		}
+		.use(bold){
+			font-weight: 700;
+		}
+		.use(extrabold){
+			font-weight: 800;
+		}
+		.use(black){
+			font-weight: 900;
+		}
+	}
+
+	// Shorthand methods to setup font styles
+	.use(glyph, @size: @baseFontSize){
+		#font > #stack > .use(glyph);
+		#font > #size > .use(@size);
+		#font > #weight > .use(normal);
+	}
+	.use(@name, @weight: regular, @size: @baseFontSize){
+		#font > #stack > .use(@name);
+		#font > #size > .use(@size);
+		#font > #weight > .use(@weight);
+	}
+
+	// Adds custom font stacks via @font-face declarations
+	.add(@name, @weight){
+		#font > .type(@name, @weight);
+	}
+
+	// Glyphs Icon Assignments - to update, see fonts/glyphs-instructions.txt
+	// Icon                Hex Entitiy         CSS Content
+	// ========================================================
+	// Pencil              !                   content: '!';
+	// Trash               &#x22;              content: '\22';
+	// Link                #                   content: '#';
+	// Star                $                   content: '$';
+	// Out                 %                   content: '%';
+	// Magnifier           &                   content: '&';
+	// Add                 &#x27;              content: '\27';
+	// Left                (                   content: '(';
+	// Right               )                   content: ')';
+	// Brush               *                   content: '*';
+	// Picture             +                   content: '+';
+	// Pacman              ,                   content: ',';
+	// Basket              -                   content: '-';
+	// Comments            .                   content: '.';
+	// Thumbs Up           /                   content: '/';
+	// Thumbs Down         0                   content: '0';
+	// Zoom In             1                   content: '1';
+	// Zoom Out            2                   content: '2';
+	.type(glyph, normal) {
+		@font-face {
+			font-family:'Glyphs';
+			src:url('/css/fonts/glyphs-webfont.eot');
+			src:url('/css/fonts/glyphs-webfont.eot?#iefix') format('embedded-opentype'),
+				url('/css/fonts/glyphs-webfont.woff') format('woff'),
+				url('/css/fonts/glyphs-webfont.ttf') format('truetype'),
+				url('/css/fonts/glyphs-webfont.svg#IcoMoonRegular') format('svg');
+		}
+	}
+
+	// Proxima Nova
+	.type(ProximaNova, regular){
+		@font-face {
+			font-family:'ProximaNova';
+			font-weight:400;
+			src:url('/css/fonts/1BAA77_1_0.eot');
+			src:url('/css/fonts/1BAA77_1_0.eot?#iefix') format('embedded-opentype'),
+				url('/css/fonts/1BAA77_1_0.woff') format('woff'),
+				url('/css/fonts/1BAA77_1_0.ttf') format('truetype');
+		}
+	}
+	.type(ProximaNova, bold){
+		@font-face {
+			font-family:'ProximaNova';
+			font-weight:700;
+			src:url('/css/fonts/1BAA77_6_0.eot');
+			src:url('/css/fonts/1BAA77_6_0.eot?#iefix') format('embedded-opentype'),
+				url('/css/fonts/1BAA77_6_0.woff') format('woff'),
+				url('/css/fonts/1BAA77_6_0.ttf') format('truetype');
+		}
+	}
+	.type(ProximaNova, black){
+		@font-face {
+			font-family:'ProximaNova';
+			font-weight:900;
+			src:url('/css/fonts/1BAA77_4_0.eot');
+			src:url('/css/fonts/1BAA77_4_0.eot?#iefix') format('embedded-opentype'),
+				url('/css/fonts/1BAA77_4_0.woff') format('woff'),
+				url('/css/fonts/1BAA77_4_0.ttf') format('truetype');
+		}
+	}
+
+	// Proxima Nova Condensed
+	.type(ProximaNovaCondensed, regular){
+		@font-face {
+			font-family:'ProximaNovaCond';
+			font-weight:400;
+			src:url('/css/fonts/1BAA77_5_0.eot');
+			src:url('/css/fonts/1BAA77_5_0.eot?#iefix') format('embedded-opentype'),
+				url('/css/fonts/1BAA77_5_0.woff') format('woff'),
+				url('/css/fonts/1BAA77_5_0.ttf') format('truetype');
+		}
+	}
+	.type(ProximaNovaCondensed, semibold){
+		@font-face {
+			font-family:'ProximaNovaCond';
+			font-weight:600;
+			src:url('/css/fonts/1BAA77_0_0.eot');
+			src:url('/css/fonts/1BAA77_0_0.eot?#iefix') format('embedded-opentype'),
+				url('/css/fonts/1BAA77_0_0.woff') format('woff'),
+				url('/css/fonts/1BAA77_0_0.ttf') format('truetype');
+		}
+	}
+	.type(ProximaNovaCondensed, bold){
+		@font-face {
+			font-family:'ProximaNovaCond';
+			font-weight:700;
+			src:url('/css/fonts/1BAA77_7_0.eot');
+			src:url('/css/fonts/1BAA77_7_0.eot?#iefix') format('embedded-opentype'),
+				url('/css/fonts/1BAA77_7_0.woff') format('woff'),
+				url('/css/fonts/1BAA77_7_0.ttf') format('truetype');
+		}
+	}
+	.type(ProximaNovaCondensed, extrabold){
+		@font-face {
+			font-family:'ProximaNovaCond';
+			font-weight:800;
+			src:url('/css/fonts/1BAA77_3_0.eot');
+			src:url('/css/fonts/1BAA77_3_0.eot?#iefix') format('embedded-opentype'),
+				url('/css/fonts/1BAA77_3_0.woff') format('woff'),
+				url('/css/fonts/1BAA77_3_0.ttf') format('truetype');
+		}
+	}
+}
+
+// Grid
+// ----------------------------------------------------------------------------
+#grid {
+	.setColumn(@columnCount, @totalColumns, @pageWidth, @gutterWidth){
+		width: ((100% / @totalColumns)  * @columnCount) - percentage((@gutterWidth / @pageWidth) * 2);
+		position: relative;
+	}
+	.create(@totalColumns: 12, @pageWidth: 960px, @gutterWidth: 10px){
+		* {
+			-moz-box-sizing: border-box;
+			-webkit-box-sizing: border-box;
+			box-sizing: border-box;
+		}
+		.container {
+			width: 100%;
+			max-width: @pageWidth;
+			margin: 0 auto;
+			position: relative;
+		}
+		.row {
+			width: 100%;
+			position: relative;
+			.clearfix();
+		}
+		[class*="column"] + [class*="column"]:last-child { float: right; } /* hide rounding errors */
+		.column, .columns {
+			float:left;
+			//padding: percentage( (@gutterWidth / @pageWidth) );
+			margin-right: percentage( (@gutterWidth / @pageWidth) );
+			margin-left: percentage( (@gutterWidth / @pageWidth) );
+		}
+		.one    { #grid > .setColumn(1, @totalColumns, @pageWidth, @gutterWidth) }
+		.two    { #grid > .setColumn(2, @totalColumns, @pageWidth, @gutterWidth) }
+		.three  { #grid > .setColumn(3, @totalColumns, @pageWidth, @gutterWidth) }
+		.four   { #grid > .setColumn(4, @totalColumns, @pageWidth, @gutterWidth) }
+		.five   { #grid > .setColumn(5, @totalColumns, @pageWidth, @gutterWidth) }
+		.six    { #grid > .setColumn(6, @totalColumns, @pageWidth, @gutterWidth) }
+		.seven  { #grid > .setColumn(7, @totalColumns, @pageWidth, @gutterWidth) }
+		.eight  { #grid > .setColumn(8, @totalColumns, @pageWidth, @gutterWidth) }
+		.nine   { #grid > .setColumn(9, @totalColumns, @pageWidth, @gutterWidth) }
+		.ten    { #grid > .setColumn(10,@totalColumns, @pageWidth, @gutterWidth) }
+		.eleven { #grid > .setColumn(11,@totalColumns, @pageWidth, @gutterWidth) }
+		.twelve { #grid > .setColumn(12,@totalColumns, @pageWidth, @gutterWidth) }
+	}
+}

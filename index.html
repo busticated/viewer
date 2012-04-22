@@ -14,11 +14,18 @@
 	</head>
 	<body>
 		<!--[if lt IE 7]><p class=chromeframe>Your browser is <em>ancient!</em> <a href="http://browsehappy.com/">Upgrade to a different browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to experience this site.</p><![endif]-->
+		<header class="container">
+			<h1>I Have Posts</h1>
+		</header>
+		<section id="js-poststream" class="container"></section>
 
 		<script id="tmpl-post" type="text/x-handlebars-template">
-			<div class="post">
-				<h1>{{title}}</h1>
+			<div id="js-post-{{id}}" class="post" data-aid="{{id}}">
+				<div class="post-asset">
+					<img src="{{asset.src}}">
+				</div>
 				<div class="post-description">
+					<h2>{{title}}</h2>
 					{{body}}
 				</div>
 			</div>

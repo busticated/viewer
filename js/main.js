@@ -4,15 +4,17 @@ require.config({
         'handlebars': 'libs/handlebars-1.0.0.beta.6'
     }
 });
-require( [ 'jquery', 'handlebars', 'mods/iterator' ], function( $, Handlebars, Iterator ){
+require( [ 'jquery', 'handlebars', 'mods/viewer' ], function( $, Handlebars, viewer ){
     'use strict';
 
-    var post = {
-        title: 'hello world!',
-        body: 'i am a fake post'
-    };
 
-    var tmpl = Handlebars.compile( $('#tmpl-post').html() );
+    window.viewer = viewer;
 
-    $('body').append( tmpl( post ) );
+    viewer.setup().listen();
 });
+
+/*
+ * Viewer:
+ * + 
+ *
+ */

@@ -1,0 +1,24 @@
+.post {
+	//border: 1px solid @grayLight;
+	border-radius: 3px;
+	.box-shadow(1px 1px 5px rgba(0,0,0,0.25));
+	margin-bottom: @spacing;
+	padding: @spacing;
+	.clearfix();
+
+    &.is-cleared {
+        visibility: hidden;
+    }
+}
+.post-asset {
+	float: left;
+	border: 1px solid @grayLighter;
+	border-radius: 3px;
+	margin-right: @gutterWidth;
+	padding: @gutterWidth;
+	width: 580px;
+
+	img {
+		width: 100%;
+	}
+}
