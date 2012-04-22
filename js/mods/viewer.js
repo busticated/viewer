@@ -1,9 +1,10 @@
 /* global define: false, require: false */
 
-define( [ 'jquery', 'handlebars', 'libs/Iterator', 'libs/polyfills' ], function( $, Handlebars, Iterator ){
+define( [ 'jquery', 'handlebars', 'libs/Iterator', 'libs/polyfills', 'libs/waypoints' ], function( $, Handlebars, Iterator ){
     'use strict';
 
     var wasSetup = false,
+        wasKeyedEvent = false,
         tmpl;
 
     var v = Object.create( new Iterator() );
@@ -41,23 +42,41 @@ define( [ 'jquery', 'handlebars', 'libs/Iterator', 'libs/polyfills' ], function(
     };
 
     v.listen = function(){
-        $( document ).on( 'keydown', function( e ){
-            switch ( e.keyCode ){
-                // Next: 74 = j, 40 = down arrow
-                case 40:
-                case 74:
-                    e.preventDefault();
-                    v.showNextPost();
-                    break;
+        $( document )
+            .on( 'keydown', function( e ){
+                wasKeyedEvent = true;
+                switch ( e.keyCode ){
+                    // Next: 74 = j, 40 = down arrow
+                    case 40:
+                    case 74:
+                        e.preventDefault();
+                        v.showNextPost();
+                        v.setScrollPosition();
+                        break;
 
-                // Prev: 75 = k, 38 = up arrow
-                case 38:
-                case 75:
-                    e.preventDefault();
+                    // Prev: 75 = k, 38 = up arrow
+                    case 38:
+                    case 75:
+                        e.preventDefault();
+                        v.showPreviousPost();
+                        v.setScrollPosition();
+                        break;
+                }
+            })
+            .on( 'waypoint.reached', function( e, direction ){
+                if ( wasKeyedEvent ){
+                    wasKeyedEvent = false;
+                    return;
+                }
+
+                v.setIdx( $( e.target ).data( 'postIdx' ) );
+
+                if ( direction === 'up' ){
                     v.showPreviousPost();
-                    break;
-            }
-        });
+                } else {
+                    v.showNextPost();
+                }
+            });
     };
 
     //this will be move into postmodel.js module
@@ -113,18 +132,28 @@ define( [ 'jquery', 'handlebars', 'libs/Iterator', 'libs/polyfills' ], function(
         } , 500 );
     };
 
+    // todo:
+    // + break this into "addOldPosts" & "addNewPosts" methods (or some such)
+    // + figure out how to detect whether posts get added to the start (old posts) or end (new posts)
+    // + there's probably a nicer way of iterating over only the newly added posts
     v.addPosts = function( postData ){
-        var posts = [];
+        var insertFrom =  v.length,
+            posts = [];
 
-        $.each(postData, function( idx, post ){
+        $.each( postData, function( idx, post ){
             var postHtml = tmpl( post );
             posts.push( $( postHtml ).data( 'postHtml', postHtml ) );
         });
 
-        v.add( posts, v.length );
+        v.add( posts, insertFrom );
 
         v.each( function( post, idx ){
-            post.appendTo( '#js-poststream' );
+            if ( idx >= insertFrom ){
+                post.data( 'postIdx', idx ).appendTo( '#js-poststream' );
+                if ( idx % v.options.postsShown ){
+                    post.waypoint();
+                }
+            }
         });
     };
 
@@ -154,13 +183,12 @@ define( [ 'jquery', 'handlebars', 'libs/Iterator', 'libs/polyfills' ], function(
 
     v.showNextPost = function(){
         v.next();
-        v.setScrollPosition();
 
         if ( v.isLast( v.idx + 3 ) ){
             v.getPosts( v.options.postsShown, v.addPosts );
         }
 
-        if ( v.idx % 21 === 0 ){
+        if ( v.idx % ( v.options.postsShown * 3 ) === 0 ){
             v.removePosts( v.options.postsShown );
         }
     };
@@ -171,7 +199,6 @@ define( [ 'jquery', 'handlebars', 'libs/Iterator', 'libs/polyfills' ], function(
         }
 
         v.prev();
-        v.setScrollPosition();
 
         if ( v.has( v.idx - v.options.postsShown ) && v.get( v.idx - v.options.postsShown ).hasClass( v.options.isClearedClass.replace( '.', '' ) ) ){
             v.resurrectPosts();
