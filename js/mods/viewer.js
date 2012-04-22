@@ -1,3 +1,5 @@
+/* global define: false, require: false */
+
 define( [ 'jquery', 'handlebars', 'libs/Iterator', 'libs/polyfills' ], function( $, Handlebars, Iterator ){
     'use strict';
 
