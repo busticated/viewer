@@ -9,10 +9,11 @@ define( [ 'jquery', 'sinon' ], function( $, sinon ){
     };
     var options = {
         endpoint: '/path/to/service',
-        minResponseTime: 50,
-        maxResponseTime: 500,
         createResponse: $.noop
     };
+
+   server.autoRespond = true;
+   server.autoRespondAfter = random( 50, 1000 );
 
     var Fake = function( cfg ){
         if ( ! ( this instanceof Fake ) ){
@@ -21,12 +22,6 @@ define( [ 'jquery', 'sinon' ], function( $, sinon ){
 
         this.options = $.extend( options, cfg );
         server.respondWith( this.options.endpoint, this.options.createResponse );
-
-        this.respond = function(){
-            setTimeout(function(){
-                server.respond();
-            }, random( this.options.minResponseTime, this.options.maxResponseTime ) );
-        };
     };
 
     return Fake;

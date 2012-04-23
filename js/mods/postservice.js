@@ -3,11 +3,8 @@
 define( [ 'mods/fakeajaxservice' ], function( Fakejax ){
     'use strict';
 
-    var idx = 0;
-    var makePost = function( count ){
-        idx = idx + 1 || 1;
-        var id = idx,
-            title = 'I am post number ' + id,
+    var makePost = function( id ){
+        var title = 'I am post number ' + id,
             body = (function(){
                 var lorem = [
                     'Lorem Ipsum is simply dummy text of the printing and typesetting industry.',
@@ -48,11 +45,13 @@ define( [ 'mods/fakeajaxservice' ], function( Fakejax ){
             endpoint: /posts\/page\/(\d+)/,
             createResponse: function( xhr, page ){
                 var postCount = 7,
-                    postData = [];
+                    postData = [],
+                    endId = postCount * page,
+                    id = postCount * ( page - 1 );
 
-                while ( postCount > 0 ){
-                    postData.push( makePost() );
-                    postCount -= 1;
+                while ( id < endId ){
+                    id += 1;
+                    postData.push( makePost( id ) );
                 }
 
                 xhr.respond(

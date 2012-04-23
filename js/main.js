@@ -8,7 +8,7 @@ require.config({
 require( [ 'jquery', 'mods/viewer', 'mods/postservice' ], function( $, viewer, postsrvc ){
     'use strict';
 
-    window.srvc = postsrvc.setup();
+    postsrvc.setup();
 
     viewer.setup().listen();
 });
