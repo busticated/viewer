@@ -18,7 +18,8 @@ define( [ 'jquery', 'handlebars', 'libs/Iterator', 'libs/polyfills', 'libs/waypo
         nextEvent: 'next',
         prevEvent: 'prev',
         loadingEvent: 'loading',
-        postTemplate: null
+        postTemplate: null,
+        endpoint: '/posts/page/{{page}}/'
     };
 
     v.setup = function( cfg ){
@@ -34,9 +35,7 @@ define( [ 'jquery', 'handlebars', 'libs/Iterator', 'libs/polyfills', 'libs/waypo
 
         tmpl = v.setTemplate( v.options.postTemplate );
 
-        v.getPosts( v.options.postsShown, function( postData ) {
-            v.addPosts( postData );
-        });
+        v.getPosts( v.options.postsShown, v.addPosts );
 
         return this;
     };
@@ -79,8 +78,13 @@ define( [ 'jquery', 'handlebars', 'libs/Iterator', 'libs/polyfills', 'libs/waypo
             });
     };
 
+    v.currentPage = 1;
+
     v.getPosts = function( count, callback ){
-        
+        var xhr = $.ajax({
+            url: v.options.endpoint.replace( '{{page}}', v.currentPage )
+        });
+        xhr.success( callback );
     };
 
     // todo:
@@ -103,6 +107,8 @@ define( [ 'jquery', 'handlebars', 'libs/Iterator', 'libs/polyfills', 'libs/waypo
                 post.data( 'postIdx', idx ).appendTo( '#js-poststream' ).waypoint();
             }
         });
+
+        v.currentPage += 1;
     };
 
     v.removePosts = function(){
