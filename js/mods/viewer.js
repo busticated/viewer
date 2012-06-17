@@ -1,6 +1,6 @@
 /* global define: false, require: false */
 
-define( [ 'jquery', 'handlebars', 'libs/Iterator', 'libs/polyfills', 'libs/waypoints' ], function( $, Handlebars, Iterator ){
+define( [ 'jquery', 'libs/handlebars', 'libs/Iterator', 'libs/polyfills', 'libs/waypoints' ], function( $, Handlebars, Iterator ){
     'use strict';
 
     var wasSetup = false,

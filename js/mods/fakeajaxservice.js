@@ -1,6 +1,6 @@
 /* global define: false, require: false */
 
-define( [ 'jquery', 'sinon' ], function( $, sinon ){
+define( [ 'jquery', 'libs/sinon' ], function( $, sinon ){
     'use strict';
 
     var server = sinon.fakeServer.create();
