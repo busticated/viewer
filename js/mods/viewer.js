@@ -36,7 +36,7 @@ define( [ 'jquery', 'libs/handlebars', 'libs/Iterator', 'mods/mastercontrol', 'l
 
         v.setTemplate( v.options.postTemplate );
 
-        v.getPosts( v.options.postsToretrieve, v.addPosts );
+        v.getPosts( v.options.postsToretrieve ).then( v.addPosts );
 
         return this;
     };
@@ -83,13 +83,17 @@ define( [ 'jquery', 'libs/handlebars', 'libs/Iterator', 'mods/mastercontrol', 'l
 
     v.currentPage = 1;
 
-    v.getPosts = function( count, callback ){
+    v.getPosts = function( count ){
         var xhr = $.ajax({
             url: v.options.endpoint.replace( '{{page}}', v.currentPage )
         });
-        xhr.success( callback );
 
-        return this;
+        return {
+            then: function( callback ){
+                xhr.success( callback );
+                return this;
+            }
+        };
     };
 
     // todo:
@@ -150,7 +154,7 @@ define( [ 'jquery', 'libs/handlebars', 'libs/Iterator', 'mods/mastercontrol', 'l
         v.next();
 
         if ( v.isLast( v.idx + 3 ) ){
-            v.getPosts( v.options.postsShown, v.addPosts );
+            v.getPosts( v.options.postsShown ).then( v.addPosts );
         }
 
         if ( v.idx % ( v.options.postsShown * 3 ) === 0 ){
