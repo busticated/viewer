@@ -13,13 +13,14 @@ define( [ 'jquery', 'libs/handlebars', 'libs/Iterator', 'mods/mastercontrol', 'l
         container: '#js-poststream',
         isLoadingClass: '.is-loading',
         isClearedClass: '.is-cleared',
+        postTemplate: null,
+        postsToretrieve: 10,
         postsShown: 7,
         eventNamespace: '.viewer',
         nextEvent: 'next',
         prevEvent: 'prev',
         loadingEvent: 'loading',
-        postTemplate: null,
-        endpoint: '/posts/page/{{page}}/'
+        endpoint: '/posts/page/{{page}}/' // should be '/posts/{{count}}'
     };
 
     v.setup = function( cfg ){
@@ -33,9 +34,9 @@ define( [ 'jquery', 'libs/handlebars', 'libs/Iterator', 'mods/mastercontrol', 'l
             v.options.postTemplate = $( '#tmpl-post' ).html();
         }
 
-        tmpl = v.setTemplate( v.options.postTemplate );
+        v.setTemplate( v.options.postTemplate );
 
-        v.getPosts( v.options.postsShown, v.addPosts );
+        v.getPosts( v.options.postsToretrieve, v.addPosts );
 
         return this;
     };
@@ -76,6 +77,8 @@ define( [ 'jquery', 'libs/handlebars', 'libs/Iterator', 'mods/mastercontrol', 'l
                     v.showNextPost();
                 }
             });
+
+        return this;
     };
 
     v.currentPage = 1;
@@ -85,6 +88,8 @@ define( [ 'jquery', 'libs/handlebars', 'libs/Iterator', 'mods/mastercontrol', 'l
             url: v.options.endpoint.replace( '{{page}}', v.currentPage )
         });
         xhr.success( callback );
+
+        return this;
     };
 
     // todo:
@@ -109,6 +114,8 @@ define( [ 'jquery', 'libs/handlebars', 'libs/Iterator', 'mods/mastercontrol', 'l
         });
 
         v.currentPage += 1;
+
+        return this;
     };
 
     v.removePosts = function(){
@@ -121,6 +128,8 @@ define( [ 'jquery', 'libs/handlebars', 'libs/Iterator', 'mods/mastercontrol', 'l
             $el.addClass( v.options.isClearedClass.replace( '.', '' ) );
             $el.empty();
         });
+
+        return this;
     };
 
     v.resurrectPosts = function(){
@@ -133,6 +142,8 @@ define( [ 'jquery', 'libs/handlebars', 'libs/Iterator', 'mods/mastercontrol', 'l
             $el.html( $post.html() );
             $el.removeClass( v.options.isClearedClass.replace( '.', '' ) );
         });
+
+        return this;
     };
 
     v.showNextPost = function(){
@@ -145,6 +156,8 @@ define( [ 'jquery', 'libs/handlebars', 'libs/Iterator', 'mods/mastercontrol', 'l
         if ( v.idx % ( v.options.postsShown * 3 ) === 0 ){
             v.removePosts( v.options.postsShown );
         }
+
+        return this;
     };
 
     v.showPreviousPost = function(){
@@ -157,14 +170,18 @@ define( [ 'jquery', 'libs/handlebars', 'libs/Iterator', 'mods/mastercontrol', 'l
         if ( v.has( v.idx - v.options.postsShown ) && v.get( v.idx - v.options.postsShown ).hasClass( v.options.isClearedClass.replace( '.', '' ) ) ){
             v.resurrectPosts();
         }
+
+        return this;
     };
 
     v.setScrollPosition = function(){
         $( document ).scrollTop( v.current().offset().top );
+        return this;
     };
 
     v.setTemplate = function( template ){
-        return Handlebars.compile( template );
+        tmpl = Handlebars.compile( template );
+        return this;
     };
 
     v.getTemplate = function(){
