@@ -5,10 +5,12 @@ require.config({
         'sinon': 'libs/sinon-1.3.4'
     }
 });
-require( [ 'jquery', 'mods/viewer', 'mods/postservice' ], function( $, viewer, postsrvc ){
+require( [ 'jquery', 'mods/masterControl', 'mods/viewer', 'mods/postservice' ], function( $, mc, viewer, postsrvc ){
     'use strict';
 
     postsrvc.setup();
 
     viewer.setup().listen();
+
+    mc.emit( 'app-initialized' );
 });
