@@ -1,10 +1,10 @@
-/*global define: false, require: false */
+/* global define: false, require: false */
 
 define( function(){
     'use strict';
 
-    var _isArray = function( arg ){
-        return Object.prototype.toString.call( arguments[ 0 ] ) === '[object Array]';
+    var _isArray = function( a ){
+        return Object.prototype.toString.call( a ) === '[object Array]';
     };
 
     var It = function( collection ){
@@ -26,7 +26,7 @@ define( function(){
     It.prototype = {
         // test methods - return bool
         has : function( idx ){
-            return this.collection[ idx ] ? true : false;
+            return idx < this.length;
         },
         hasNext : function(){
             return ! this.isLast();
@@ -84,6 +84,22 @@ define( function(){
         },
 
         // utility methods
+        indexOf: function( item, fromIdx ){
+            fromIdx = fromIdx || 0;
+            fromIdx = fromIdx < 0 ? Math.max( 0, this.length + fromIdx ) : fromIdx;
+
+            if ( Array.prototype.indexOf ) {
+                return this.collection.indexOf( item, fromIdx );
+            }
+
+            for ( var i = fromIdx, l = this.length; i < l; i += 1 ){
+                if ( item === this.collection[ i ] ){
+                    return i;
+                }
+            }
+
+            return -1;
+        },
         setIdx : function( idx ){
             if ( ! this.has( idx ) ){
                 throw new Error( 'idx out of bounds - collection does not include that index' );
