@@ -23,7 +23,9 @@ define( [ 'mods/fakeajaxservice' ], function( Fakejax ){
 
                 return lines.join( ' ' );
             })(),
-            imageSrc = 'http://placekitten.com/580/' + ( random( 2, 12 ) * 100 );
+            imageWidth = 580,
+            imageHeight = ( random( 2, 12 ) * 100 ),
+            imageSrc = 'http://placekitten.com/' + imageWidth + '/' + imageHeight;
 
         return {
             id: id,
@@ -31,7 +33,9 @@ define( [ 'mods/fakeajaxservice' ], function( Fakejax ){
             body: body,
             asset: {
                 type: 'image',
-                src: imageSrc
+                src: imageSrc,
+                height: imageHeight,
+                width: imageWidth
             }
         };
     };
