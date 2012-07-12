@@ -1,0 +1,193 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Viewer Module: Test Suite</title>
+<link rel="stylesheet" href="http://code.jquery.com/qunit/qunit-git.css" type="text/css" media="screen">
+<script src="../libs/qunit.js"></script>
+<script src="../libs/sinon.js"></script>
+<script src="../libs/require.js"></script>
+<script src="../libs/testing.js"></script>
+<script>
+	QUnit.config.testTimeout = 2000;
+
+	test('test are running in a compatible environment', function(){
+		notStrictEqual( window.location.protocol, 'file:', 'Not running tests under the "file:" protocol' );
+	});
+
+	module( 'With a new RequireJS context & sinon sandbox:', {
+		setup: function(){
+			testing.setupAndTeardown.setup({ baseUrl: '../' });
+		},
+		teardown: function(){
+			testing.setupAndTeardown.teardown();
+		}
+	});
+
+	test('confirm module methods & properties', function(){
+		testing.req.given(['mods/viewer'], function (module) {
+			var expected = {
+				options: 'object',
+				setup: 'function',
+				listen: 'function',
+				currentPage: 'number',
+				getPosts: 'function',
+				getActivePostsRange: 'function',
+				addPosts: 'function',
+				trimPostsAbove: 'function',
+				trimPostsBelow: 'function',
+				trimPosts: 'function',
+				resurrectPosts: 'function',
+				showNextPost: 'function',
+				showPreviousPost: 'function',
+				setScrollPosition: 'function',
+				setTemplate: 'function',
+				getTemplate: 'function'
+			};
+
+			expect(1 + Object.keys(expected).length);
+
+			strictEqual(Object.keys(module).length, Object.keys(expected).length, 'all methods have been identified' );
+
+			for (var prop in expected) {
+				strictEqual(typeof module[prop], expected[prop], 'module includes the "' + prop + '" method / property');
+			}
+		});
+	});
+
+	test('When calling .setup()', function(){
+		testing.req.given(['mods/viewer'], function (viewer) {
+			postTemplate = '<p>{{id}} - {{title}}</p>';
+			postsToRetrieve = 7;
+			testing.sandbox.stub(viewer, 'setTemplate');
+			testing.sandbox.stub(viewer, 'getPosts');
+			viewer.getPosts.returns({ then: function(){} });
+
+			viewer.setup({
+				postTemplate: postTemplate,
+				postsToRetrieve: postsToRetrieve
+			})
+
+			ok(viewer.setTemplate.calledOnce, '.setTemplate() called once');
+			ok(viewer.setTemplate.calledWith(postTemplate), '.setTemplate() called with the post template string');
+			ok(viewer.getPosts.calledOnce, '.getPosts() called once');
+			ok(viewer.getPosts.calledWith(postsToRetrieve), '.getPosts() called with number of posts to retrieve');
+		});
+	});
+
+	test('When calling .getPosts()', function(){
+		testing.req.given(['mods/viewer'], function (viewer) {
+			var endPoint = viewer.options.endpoint;
+
+			testing.sandbox.useFakeServer();
+			testing.sandbox.server.respondWith('GET', endPoint.replace('{{page}}', viewer.currentPage), [200, { "Content-Type": "text/html" }, "<div></div>"]);
+
+			viewer.getPosts().then(function(data){
+				strictEqual(data, '<div></div>', 'post html is retreived');
+			});
+
+			testing.sandbox.server.respond();
+		});
+	});
+
+	test('When calling .getActivePostsRange()', function(){
+		testing.req.given(['mods/viewer'], function (viewer) {
+			var expectedRange = {
+				start: 0,
+				end: 4
+			};
+
+			viewer.options.postsShown = 4;
+			viewer.add([0,1,2,3,4,5,6,7,8]);
+			viewer.setIdx(0);
+
+			deepEqual(viewer.getActivePostsRange(), expectedRange, 'post range is correct when current item is first')
+
+			viewer.setIdx(4);
+			expectedRange.start = 2;
+			expectedRange.end = 6;
+
+			deepEqual(viewer.getActivePostsRange(), expectedRange, 'post range is correct when current item is the median')
+
+			viewer.setIdx(viewer.length - 1);
+			expectedRange.start = 6;
+			expectedRange.end = 10;
+
+			deepEqual(viewer.getActivePostsRange(), expectedRange, 'post range is correct when current item is last')
+		});
+	});
+
+	test('When calling .addPosts()', function(){
+		testing.req.given(['mods/viewer'], function (viewer) {
+			var currentPage = viewer.currentPage,
+				postData = [
+				{
+					id: 1,
+					title: 'I am post number 1',
+					body: '',
+					asset: {
+						src: 'http://placekitten.com/580/1000',
+						type: 'image'
+					}
+				},
+				{
+					id: 2,
+					title: 'I am post number 2',
+					body: '',
+					asset: {
+						src: 'http://placekitten.com/240/500',
+						type: 'image'
+					}
+				}
+			];
+
+			testing.sandbox.stub(viewer, 'getPosts', function(){ return { then: function(){} }; });
+			$('#qunit-fixture').append('<div id="js-poststream"></div>');
+			viewer.setup().addPosts(postData);
+
+			strictEqual(viewer.collection.length, 2, 'correct number of posts are added to the collection');
+			strictEqual($('.post').length, 2, 'correct number of posts are added to the page');
+			strictEqual(viewer.currentPage, currentPage + 1, 'current page is updated appropriately');
+			viewer.each(function(post, idx){
+				strictEqual(typeof post.id, 'number', 'post model ' + post.id + ' has an "id" property');
+				strictEqual(typeof post.html, 'string', 'post model ' + post.id + ' has an "html" property');
+				ok(post.$el.jquery, 'post model ' + post.id + ' has a jquery object');
+			});
+		});
+	});
+
+	test('When calling .getPosts()', function(){
+		testing.req.given(['mods/viewer'], function (viewer) {
+			var endPoint = viewer.options.endpoint;
+
+			testing.sandbox.useFakeServer();
+			testing.sandbox.server.respondWith('GET', endPoint.replace('{{page}}', viewer.currentPage), [200, { "Content-Type": "text/html" }, "<div></div>"]);
+
+			viewer.getPosts().then(function(data){
+				strictEqual(data, '<div></div>', 'post html is retreived');
+			});
+
+			testing.sandbox.server.respond();
+		});
+	});
+</script>
+</head>
+<body>
+	<h1 id="qunit-header">Viewer Module: Test Suite</h1>
+	<h2 id="qunit-banner"></h2>
+	<div id="qunit-testrunner-toolbar"></div>
+	<h2 id="qunit-userAgent"></h2>
+	<ol id="qunit-tests"></ol>
+	<div id="qunit-fixture"></div>
+	<script id="tmpl-post" type="text/x-handlebars-template">
+		<div id="js-post-{{id}}" class="post" data-aid="{{id}}">
+			<div class="post-asset">
+				<img src="{{asset.src}}">
+			</div>
+			<div class="post-description">
+				<h2>{{title}}</h2>
+				{{body}}
+			</div>
+		</div>
+	</script>
+</body>
+</html>
