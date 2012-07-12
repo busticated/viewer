@@ -14,8 +14,8 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'l
         isLoadingClass: '.is-loading',
         isClearedClass: '.is-cleared',
         postTemplate: null,
-        postsToretrieve: 10,
-        postsShown: 7,
+        postsToRetrieve: 10,
+        postsShown: 5,
         eventNamespace: '.viewer',
         nextEvent: 'next',
         prevEvent: 'prev',
@@ -36,8 +36,9 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'l
 
         v.setTemplate( v.options.postTemplate );
 
-        v.getPosts( v.options.postsToretrieve ).then( v.addPosts );
+        v.getPosts( v.options.postsToRetrieve ).then( v.addPosts );
 
+        window.posts = v;
         return this;
     };
 
@@ -96,24 +97,48 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'l
         };
     };
 
+    v.getActivePostsRange = function(){
+        var count = Math.round( v.options.postsShown / 2 );
+
+        if ( v.idx - count <= 0 ){
+            return {
+                start: 0,
+                end: v.options.postsShown
+            };
+        }
+
+        return {
+            start: v.idx - count,
+            end: v.idx + count
+        };
+    };
+
     // todo:
     // + break this into "addOldPosts" & "addNewPosts" methods (or some such)
     // + figure out how to detect whether posts get added to the start (old posts) or end (new posts)
     // + there's probably a nicer way of iterating over only the newly added posts
     v.addPosts = function( postData ){
-        var insertFrom =  v.length,
+        var insertFrom = v.length,
             posts = [];
 
         $.each( postData, function( idx, post ){
-            var postHtml = tmpl( post );
-            posts.push( $( postHtml ).data( 'postHtml', postHtml ) );
+            var postHtml = tmpl( post ),
+                $el = $( postHtml );
+
+            posts.push({
+                $el: $el,
+                html: postHtml,
+                innerHtml: $el[ 0 ].innerHTML,
+                id: $el.data( 'aid' ),
+                render: function(){}
+            });
         });
 
         v.add( posts, insertFrom );
 
         v.each( function( post, idx ){
             if ( idx >= insertFrom ){
-                post.data( 'postIdx', idx ).appendTo( '#js-poststream' ).waypoint();
+                post.$el.data( 'postIdx', idx ).appendTo( '#js-poststream' ).waypoint();
             }
         });
 
@@ -122,44 +147,59 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'l
         return this;
     };
 
-    v.removePosts = function(){
-        var $oldPosts = $( '.post' ).slice( 0, v.idx - v.options.postsShown );
+    v.trimPostsAbove = function(){
+        var activePosts = v.getActivePostsRange();
 
-        $oldPosts.each(function( idx, elem ){
-            var $el = $( elem );
+        if ( activePosts.start > 0 ){
+            v.trimPosts( 0, activePosts.start );
+        }
 
-            $el.css( 'height', $el.outerHeight() + 'px' );
-            $el.addClass( v.options.isClearedClass.replace( '.', '' ) );
-            $el.empty();
+        return this;
+    };
+
+    v.trimPostsBelow = function(){
+        var activePosts = v.getActivePostsRange();
+
+        if ( v.length - activePosts.end > 0 ){
+            v.trimPosts( activePosts.end, v.length - 1 );
+        }
+
+        return this;
+    };
+
+    v.trimPosts = function( from, to ){
+        v.each(function( post, idx ){
+            if ( idx >= from && idx <= to ){
+                post.$el.height( post.$el.outerHeight() );
+                post.$el.addClass( v.options.isClearedClass.replace( '.', '' ) );
+                post.$el.empty();
+            }
         });
 
         return this;
     };
 
     v.resurrectPosts = function(){
-        var $clearedPostSlots = $( v.options.isClearedClass ).slice( v.idx - v.options.postsShown, v.idx ),
-            posts = v.collection.slice( v.idx - v.options.postsShown, v.idx );
+        var activePosts = v.getActivePostsRange();
 
-        $clearedPostSlots.each(function( idx, elem ){
-            var $el = $( elem ),
-                $post = $( posts[ idx ].data( 'postHtml' ) );
-            $el.html( $post.html() );
-            $el.removeClass( v.options.isClearedClass.replace( '.', '' ) );
+        v.each(function( post, idx ){
+            if ( idx >= activePosts.start && idx < activePosts.end && post.$el.hasClass( v.options.isClearedClass.replace( '.', '' ) ) ){
+                post.$el.html( post.innerHtml );
+                post.$el.removeClass( v.options.isClearedClass.replace( '.', '' ) );
+            }
         });
 
         return this;
     };
 
     v.showNextPost = function(){
-        v.next();
-
         if ( v.isLast( v.idx + 3 ) ){
             v.getPosts( v.options.postsShown ).then( v.addPosts );
         }
 
-        if ( v.idx % ( v.options.postsShown * 3 ) === 0 ){
-            v.removePosts( v.options.postsShown );
-        }
+        v.next();
+        v.resurrectPosts();
+        v.trimPostsAbove();
 
         return this;
     };
@@ -170,16 +210,14 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'l
         }
 
         v.prev();
-
-        if ( v.has( v.idx - v.options.postsShown ) && v.get( v.idx - v.options.postsShown ).hasClass( v.options.isClearedClass.replace( '.', '' ) ) ){
-            v.resurrectPosts();
-        }
+        v.resurrectPosts();
+        v.trimPostsBelow();
 
         return this;
     };
 
     v.setScrollPosition = function(){
-        $( document ).scrollTop( v.current().offset().top );
+        $( document ).scrollTop( v.current().$el.offset().top );
         return this;
     };
 
