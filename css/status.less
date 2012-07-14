@@ -1,0 +1,29 @@
+.status-wrap {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    width: 10%;
+    margin-left: -5%;
+}
+
+.status {
+    padding: 5px;
+    color: #fff;
+    text-align: center;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, .25);
+    #gradient > .vertical(#149bdf, #0480be);
+    .box-shadow(inset 0 -1px 0 rgba(0, 0, 0, .15));
+    .border-radius(0 0 5px 5px);
+}
+.status-info {
+    #gradient > .vertical(#5bc0de, #339bb9);
+}
+.status-ok {
+    #gradient > .vertical(#62c462, #57a957);
+}
+.status-warning {
+    #gradient > .vertical(lighten(@orange, 15%), @orange);
+}
+.status-alert {
+    #gradient > .vertical(#ee5f5b, #c43c35);
+}
