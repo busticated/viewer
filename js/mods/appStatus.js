@@ -54,6 +54,8 @@ define( [ 'jquery', 'libs/handlebars', 'mods/mastercontrol' ], function( $, Hand
                     msg: 'error while loading'
                 });
             });
+
+        return this;
     };
 
     s.update = function( status ){
@@ -64,10 +66,13 @@ define( [ 'jquery', 'libs/handlebars', 'mods/mastercontrol' ], function( $, Hand
         };
 
         s.$el.html( s.tmpl( status ) );
+
+        return this;
     };
 
     s.clear = function(){
         s.$el.empty();
+        return this;
     };
 
     return s;
