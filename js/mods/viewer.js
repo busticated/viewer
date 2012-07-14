@@ -138,7 +138,7 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'l
 
         v.each( function( post, idx ){
             if ( idx >= insertFrom ){
-                post.$el.data( 'postIdx', idx ).appendTo( '#js-poststream' ).waypoint();
+                post.$el.data( 'postIdx', idx ).appendTo( '#js-poststream' ).waypoint({ continuous: false });
             }
         });
 
