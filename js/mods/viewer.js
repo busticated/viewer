@@ -4,7 +4,6 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'l
     'use strict';
 
     var wasSetup = false,
-        wasKeyedEvent = false,
         tmpl;
 
     var v = Object.create( new Iterator() );
@@ -45,32 +44,24 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'l
     v.listen = function(){
         $( document )
             .on( 'keydown', function( e ){
-                wasKeyedEvent = true;
                 switch ( e.keyCode ){
                     // Next: 74 = j, 40 = down arrow
                     case 40:
                     case 74:
                         e.preventDefault();
-                        v.showNextPost();
-                        v.setScrollPosition();
+                        v.setScrollPosition( v.getNext().$el.offset().top - 5 );
                         break;
 
                     // Prev: 75 = k, 38 = up arrow
                     case 38:
                     case 75:
                         e.preventDefault();
-                        v.showPreviousPost();
-                        v.setScrollPosition();
+                        v.setScrollPosition( v.getPrev().$el.offset().top - 5 );
                         break;
                 }
             })
             .on( 'waypoint.reached', function( e, direction ){
-                if ( wasKeyedEvent ){
-                    wasKeyedEvent = false;
-                    return;
-                }
-
-                v.setIdx( $( e.target ).data( 'postIdx' ) );
+                v.setIndex( $( e.target ).data( 'postIndex' ) );
 
                 if ( direction === 'up' ){
                     v.showPreviousPost();
@@ -100,7 +91,7 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'l
     v.getActivePostsRange = function(){
         var count = Math.round( v.options.postsShown / 2 );
 
-        if ( v.idx - count <= 0 ){
+        if ( v.index - count <= 0 ){
             return {
                 start: 0,
                 end: v.options.postsShown
@@ -108,8 +99,8 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'l
         }
 
         return {
-            start: v.idx - count,
-            end: v.idx + count
+            start: v.index - count,
+            end: v.index + count
         };
     };
 
@@ -138,7 +129,7 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'l
 
         v.each( function( post, idx ){
             if ( idx >= insertFrom ){
-                post.$el.data( 'postIdx', idx ).appendTo( '#js-poststream' ).waypoint({ continuous: false });
+                post.$el.data( 'postIndex', idx ).appendTo( '#js-poststream' ).waypoint({ continuous: false });
             }
         });
 
@@ -193,7 +184,7 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'l
     };
 
     v.showNextPost = function(){
-        if ( v.isLast( v.idx + 3 ) ){
+        if ( v.isLast( v.index + 3 ) ){
             v.getPosts( v.options.postsShown ).then( v.addPosts );
         }
 
@@ -216,8 +207,8 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'l
         return this;
     };
 
-    v.setScrollPosition = function(){
-        $( document ).scrollTop( v.current().$el.offset().top );
+    v.setScrollPosition = function( offset ){
+        $( document ).scrollTop( offset );
         return this;
     };
 
