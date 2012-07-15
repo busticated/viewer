@@ -18,7 +18,8 @@ define( [ 'jquery', 'mods/mastercontrol' ], function( $, mc ){
                     '<div id="ad-04" class="js-ad ad ad-right ad-skyscraper" data-adtype="ICHCTEST_160_RIGHT_BTFISCROLL_ROS" data-adsize="[[160, 600],[300,600]]"></div>',
                 '</div>',
             '</div>'
-        ].join( '' )
+        ].join( '' ),
+        debounceBy: 1000
     };
 
 
@@ -35,7 +36,12 @@ define( [ 'jquery', 'mods/mastercontrol' ], function( $, mc ){
     };
 
     a.rotateAds = function(){
-        $( '#js-adgroup-01, #js-adgroup-02' ).toggleClass( 'is-visible' );
+        a.rotateAds.__timer && clearTimeout( a.rotateAds.__timer );
+
+        a.rotateAds.__timer = setTimeout(function(){
+            $( '#js-adgroup-01, #js-adgroup-02' ).toggleClass( 'is-visible' );
+        }, a.options.debounceBy );
+
         return this;
     };
 
