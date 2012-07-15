@@ -49,14 +49,14 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'l
                     case 40:
                     case 74:
                         e.preventDefault();
-                        v.setScrollPosition( v.getNext().$el.offset().top - 5 );
+                        v.hasNext() && v.setScrollPosition( v.getNext().$el.offset().top + 1 );
                         break;
 
                     // Prev: 75 = k, 38 = up arrow
                     case 38:
                     case 75:
                         e.preventDefault();
-                        v.setScrollPosition( v.getPrev().$el.offset().top - 5 );
+                        v.hasPrev() && v.setScrollPosition( v.getPrev().$el.offset().top - 1 );
                         break;
                 }
             })
@@ -129,7 +129,7 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'l
 
         v.each( function( post, idx ){
             if ( idx >= insertFrom ){
-                post.$el.data( 'postIndex', idx ).appendTo( '#js-poststream' ).waypoint({ continuous: false });
+                post.$el.data( 'postIndex', idx ).appendTo( '#js-poststream' ).waypoint();
             }
         });
 
@@ -188,7 +188,6 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'l
             v.getPosts( v.options.postsShown ).then( v.addPosts );
         }
 
-        v.next();
         v.resurrectPosts();
         v.trimPostsAbove();
 
@@ -200,7 +199,6 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'l
             return;
         }
 
-        v.prev();
         v.resurrectPosts();
         v.trimPostsBelow();
 
