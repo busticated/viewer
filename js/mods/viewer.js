@@ -70,10 +70,7 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'l
                     v.showNextPost();
                 }
 
-                if ( v.index && v.index % v.options.postsPerPage === 0 ){
-                    v.scrollState.page += direction === 'up' ? -1 : 1;
-                    mc.emit( 'pageChanged', v.scrollState.page );
-                }
+                v.setCurrentPage( direction );
             });
 
         return this;
@@ -228,6 +225,18 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'l
 
     v.getTemplate = function(){
         return tmpl;
+    };
+
+    v.setCurrentPage = function( direction ){
+        if ( v.index && v.index % v.options.postsPerPage === 0 ){
+            v.scrollState.page += direction === 'up' ? -1 : 1;
+            mc.emit( 'pageChanged', v.scrollState.page );
+        }
+        return this;
+    };
+
+    v.getCurrentPage = function(){
+        return v.scrollState.page;
     };
 
     return v;
