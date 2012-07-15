@@ -16,10 +16,6 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'l
         postsPerPage: 7,
         postsToRetrieve: 10,
         activePostCount: 5,
-        eventNamespace: '.viewer',
-        nextEvent: 'next',
-        prevEvent: 'prev',
-        loadingEvent: 'loading',
         endpoint: '/posts/page/{{page}}/' // should be '/posts/{{count}}'
     };
 
