@@ -13,8 +13,9 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'l
         isLoadingClass: '.is-loading',
         isClearedClass: '.is-cleared',
         postTemplate: null,
-        postsPerPage: 7,
         postsToRetrieve: 10,
+        postsPerPage: 7,
+        postsPerAdRotation: 3,
         activePostCount: 5,
         endpoint: '/posts/page/{{page}}/' // should be '/posts/{{count}}'
     };
@@ -70,7 +71,13 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'l
                     v.showNextPost();
                 }
 
-                v.setCurrentPage( direction );
+                v.setCurrentPage( direction ).rotateAds();
+
+                // mc.emit( 'status', {
+                //     type: 'ok',
+                //     msg: 'viewing post ',
+                //     data: v.index + 1
+                // });
             });
 
         return this;
@@ -237,6 +244,13 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'l
 
     v.getCurrentPage = function(){
         return v.scrollState.page;
+    };
+
+    v.rotateAds = function(){
+        if ( v.index && v.index % v.options.postsPerAdRotation === 0 ){
+            mc.emit( 'rotateAds' );
+        }
+        return this;
     };
 
     return v;
