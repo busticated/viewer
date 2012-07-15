@@ -39,7 +39,7 @@ define( [ 'jquery', 'libs/handlebars', 'mods/mastercontrol' ], function( $, Hand
 
     s.listen = function(){
         mc.on( s.options.eventName, s.update );
-        mc.on( s.options.eventName + '-clear' );
+        mc.on( s.options.eventName + '-clear', s.clear );
         s.$el
             .on( 'ajaxStart', function(){
                 s.update({
@@ -65,13 +65,13 @@ define( [ 'jquery', 'libs/handlebars', 'mods/mastercontrol' ], function( $, Hand
             data: null
         };
 
-        s.$el.html( s.tmpl( status ) );
+        s.$el.html( s.tmpl( status ) ).addClass( 'is-visible' );
 
         return this;
     };
 
     s.clear = function(){
-        s.$el.empty();
+        s.$el.removeClass( 'is-visible' );
         return this;
     };
 
