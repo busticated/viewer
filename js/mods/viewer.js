@@ -13,13 +13,18 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'l
         isLoadingClass: '.is-loading',
         isClearedClass: '.is-cleared',
         postTemplate: null,
+        postsPerPage: 7,
         postsToRetrieve: 10,
-        postsShown: 5,
+        activePostCount: 5,
         eventNamespace: '.viewer',
         nextEvent: 'next',
         prevEvent: 'prev',
         loadingEvent: 'loading',
         endpoint: '/posts/page/{{page}}/' // should be '/posts/{{count}}'
+    };
+
+    v.scrollState = {
+        page: 1
     };
 
     v.setup = function( cfg ){
@@ -68,6 +73,11 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'l
                 } else {
                     v.showNextPost();
                 }
+
+                if ( v.index && v.index % v.options.postsPerPage === 0 ){
+                    v.scrollState.page += direction === 'up' ? -1 : 1;
+                    mc.emit( 'pageChanged', v.scrollState.page );
+                }
             });
 
         return this;
@@ -89,12 +99,12 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'l
     };
 
     v.getActivePostsRange = function(){
-        var count = Math.round( v.options.postsShown / 2 );
+        var count = Math.round( v.options.activePostCount / 2 );
 
         if ( v.index - count <= 0 ){
             return {
                 start: 0,
-                end: v.options.postsShown
+                end: v.options.activePostCount
             };
         }
 
@@ -160,7 +170,12 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'l
 
     v.trimPosts = function( from, to ){
         v.each(function( post, idx ){
-            if ( idx >= from && idx <= to ){
+            // looks like the act of checking a class causes a reflow...
+            // use post.$el.data( 'isCleared' ) instead?
+            // or store on the post object itself - e.g. post.isCleared = true;
+            // - or - 
+            // need to reduce the iterations somehow?
+            if ( idx >= from && idx <= to && ! post.$el.hasClass( v.options.isClearedClass ) ){
                 post.$el.height( post.$el.outerHeight() );
                 post.$el.addClass( v.options.isClearedClass.replace( '.', '' ) );
                 post.$el.empty();
@@ -185,7 +200,7 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'l
 
     v.showNextPost = function(){
         if ( v.isLast( v.index + 3 ) ){
-            v.getPosts( v.options.postsShown ).then( v.addPosts );
+            v.getPosts( v.options.postsToRetrieve ).then( v.addPosts );
         }
 
         v.resurrectPosts();
