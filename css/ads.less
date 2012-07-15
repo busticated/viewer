@@ -1,0 +1,52 @@
+.ad-container {
+    position: fixed;
+    width: 960px;
+}
+
+.ad-group {
+    margin-top: 9999px;
+    visibility: hidden;
+    .transition(margin-top 0.75s);
+
+    &.is-visible {
+        margin-top: 0;
+        visibility: visible;
+    }
+
+    &.ad-group-a {
+
+    }
+    &.ad-group-b {
+        margin-top: -9999px;
+    }
+}
+
+.ad {
+    position:relative;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+
+    &:before {
+        color: #fff;
+        content: attr(id);
+    }
+}
+
+.ad-left,
+.ad-right {
+    position: absolute;
+}
+
+.ad-skyscraper {
+    width: 160px;
+    height: 600px;
+    background: @gray;
+
+    &.ad-left {
+        right: 980px;
+    }
+    &.ad-right {
+        left: 980px;
+    }
+}

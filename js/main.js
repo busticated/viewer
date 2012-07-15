@@ -3,12 +3,14 @@ require.config({
         'jquery': 'libs/jquery'
     }
 });
-require( [ 'jquery', 'mods/masterControl', 'mods/appStatus', 'mods/viewer', 'mods/postservice' ], function( $, mc, status, viewer, postsrvc ){
+require( [ 'jquery', 'mods/masterControl', 'mods/appStatus', 'mods/viewer', 'mods/postservice', 'mods/ads' ], function( $, mc, status, viewer, postsrvc, ads ){
     'use strict';
 
     postsrvc.setup();
 
     viewer.setup().listen();
+
+    ads.setup().listen();
 
     status.setup().listen();
 
