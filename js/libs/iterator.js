@@ -1,4 +1,4 @@
-/* global define: false, require: false */
+/*global define: false, require: false */
 
 define( function(){
     'use strict';
@@ -18,15 +18,15 @@ define( function(){
             this.collection = Array.prototype.slice.call( arguments );
         }
 
-        this.idx = 0;
+        this.index = 0;
         this.length = this.collection.length;
         return this;
     };
 
     It.prototype = {
         // test methods - return bool
-        has : function( idx ){
-            return idx < this.length;
+        has : function( index ){
+            return index < this.length;
         },
         hasNext : function(){
             return ! this.isLast();
@@ -34,29 +34,49 @@ define( function(){
         hasPrev : function(){
             return ! this.isFirst();
         },
-        isFirst : function( idx ){
-            if ( typeof idx === 'undefined' ){
-                return this.isFirst( this.idx );
+        isFirst : function( index ){
+            if ( typeof index === 'undefined' ){
+                return this.isFirst( this.index );
             }
-            return idx === 0;
+            return index === 0;
         },
-        isLast : function( idx ){
-            if ( typeof idx === 'undefined' ){
-                return this.isLast( this.idx );
+        isLast : function( index ){
+            if ( typeof index === 'undefined' ){
+                return this.isLast( this.index );
             }
-            return idx === this.length - 1;
+            return index === this.length - 1;
         },
 
         // iteration methods - return collection item(s)
-        get : function( idx ){
-            return this.collection[ idx ];
+        get : function( index ){
+            return this.collection[ index ];
+        },
+        getNext : function(){
+            var index = this.index + 1;
+
+            if ( this.isLooping && ! this.hasNext() ){
+                this.isLooping = false;
+                index = 0;
+            }
+
+            return this.get( index );
+        },
+        getPrev : function(){
+            var index = this.index - 1;
+
+            if ( this.isLooping && ! this.hasPrev() ){
+                this.isLooping = false;
+                index = this.length - 1;
+            }
+
+            return this.get( index );
         },
         current : function(){
-            return this.get( this.idx );
+            return this.get( this.index );
         },
         next : function(){
             if ( this.hasNext() ){
-                return this.setIdx( this.idx + 1 ).current();
+                return this.setIndex( this.index + 1 ).current();
             }
             if  ( this.isLooping ) {
                 this.isLooping = false;
@@ -66,7 +86,7 @@ define( function(){
         },
         prev : function(){
             if ( this.hasPrev() ){
-                return this.setIdx( this.idx - 1 ).current();
+                return this.setIndex( this.index - 1 ).current();
             }
             if ( this.isLooping ){
                 this.isLooping = false;
@@ -75,11 +95,11 @@ define( function(){
             return null;
         },
         first : function(){
-            this.setIdx( 0 );
+            this.setIndex( 0 );
             return this.current();
         },
         last : function(){
-            this.setIdx( this.length - 1 );
+            this.setIndex( this.length - 1 );
             return this.current();
         },
 
@@ -100,11 +120,11 @@ define( function(){
 
             return -1;
         },
-        setIdx : function( idx ){
-            if ( ! this.has( idx ) ){
-                throw new Error( 'idx out of bounds - collection does not include that index' );
+        setIndex : function( index ){
+            if ( ! this.has( index ) ){
+                throw new Error( 'index out of bounds - collection does not include that index' );
             }
-            this.idx = idx;
+            this.index = index;
             return this;
         },
         loop : function(){
@@ -129,32 +149,32 @@ define( function(){
         },
 
         // collection modification methods
-        add : function( items, idx ){
+        add : function( items, index ){
             if ( ! _isArray( items ) ){
                 items = [ items ];
             }
 
-            if ( typeof idx === 'undefined' || ! this.has( idx ) ){
-                idx = this.length;
+            if ( typeof index === 'undefined' || ! this.has( index ) ){
+                index = this.length;
             }
             for ( var i = 0, l = items.length; i < l; i = i + 1 ){
-                this.collection.splice( idx + i, 0, items[ i ] );
+                this.collection.splice( index + i, 0, items[ i ] );
             }
             this.length = this.collection.length;
             return this;
         },
-        remove : function( idx ){
-            if ( typeof idx === 'number' ) {
-                this.collection.splice( idx, 1 );
+        remove : function( index ){
+            if ( typeof index === 'number' ) {
+                this.collection.splice( index, 1 );
             }
             this.length = this.collection.length;
             return this;
         },
-        update : function( item, idx ){
-            if ( ! this.has( idx ) ){
-                throw new Error( 'idx out of bounds - collection does not include that index' );
+        update : function( index, item ){
+            if ( ! this.has( index ) ){
+                throw new Error( 'index out of bounds - collection does not include that index' );
             }
-            this.collection[ idx ] = item;
+            this.collection[ index ] = item;
             return this;
         },
         filter : function( filter ){
