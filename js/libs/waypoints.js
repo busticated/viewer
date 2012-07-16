@@ -58,7 +58,15 @@ Support:
 	- Other versions and browsers may work, these are just the ones I've looked at.
 */
 
-(function($, wp, wps, window, undefined){
+(function( root, wp, wps, factory ) {
+    if ( typeof define === 'function' && define.amd ) {
+        define( [ 'jquery' ], function ( $ ) {
+        	return factory( $, wp, wps, root );
+        });
+    } else {
+        factory( root.jQuery, wp, wps, root );
+    }
+})( this, 'waypoint', 'waypoints', function ( $, wp, wps, window, undefined ) {
 	'$:nomunge';
 	
 	var $w = $(window),
@@ -673,4 +681,4 @@ Support:
 		// Calculate everything once on load.
 		$[wps]('refresh');
 	});
-})(jQuery, 'waypoint', 'waypoints', window);
+});
