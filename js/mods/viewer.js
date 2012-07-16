@@ -21,7 +21,10 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'l
     };
 
     v.scrollState = {
-        page: 1
+        page: 1,
+        postsViewed: 0 // instead of comparing current idx, just start incrementing this
+                            // but increment it forward with any post view (up or down, next or prev this count always goes up)
+                            // then compare and emit event when appropriate
     };
 
     v.setup = function( cfg ){
@@ -247,7 +250,9 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'l
     };
 
     v.rotateAds = function(){
-        if ( v.index && v.index % v.options.postsPerAdRotation === 0 ){
+        var adIndex = v.scrollState.postsViewed += 1;
+        console.log( adIndex );
+        if ( adIndex % v.options.postsPerAdRotation === 0 ){
             mc.emit( 'rotateAds' );
         }
         return this;
