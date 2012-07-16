@@ -22,9 +22,7 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'l
 
     v.scrollState = {
         page: 1,
-        postsViewed: 0 // instead of comparing current idx, just start incrementing this
-                            // but increment it forward with any post view (up or down, next or prev this count always goes up)
-                            // then compare and emit event when appropriate
+        postsViewed: 0
     };
 
     v.setup = function( cfg ){
@@ -249,9 +247,11 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'l
         return v.scrollState.page;
     };
 
+    // todo:
+    // + way points fire twice when scrolling up(?) causing
+    //   the index to increment inaccurately
     v.rotateAds = function(){
         var adIndex = v.scrollState.postsViewed += 1;
-        console.log( adIndex );
         if ( adIndex % v.options.postsPerAdRotation === 0 ){
             mc.emit( 'rotateAds' );
         }
