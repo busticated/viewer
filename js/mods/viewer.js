@@ -89,12 +89,15 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'l
         return this;
     };
 
+    // todo:
+    // + need a more reliable way to track & handle failed page loads
     v.currentPage = 1;
-
     v.getPosts = function( count ){
         var xhr = $.ajax({
             url: v.options.endpoint.replace( '{{page}}', v.currentPage )
         });
+
+        v.currentPage += 1;
 
         return {
             then: function( callback ){
@@ -149,8 +152,6 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'l
                 v.get( idx ).$el.appendTo( '#js-poststream' ).waypoint();
             }
         });
-
-        v.currentPage += 1;
 
         return this;
     };
