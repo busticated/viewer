@@ -17,6 +17,7 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'l
         postsPerPage: 7,
         postsPerAdRotation: 3,
         activePostCount: 7,
+        lookAhead: 5,
         endpoint: '/posts/page/{{page}}/' // should be '/posts/{{count}}'
     };
 
@@ -207,7 +208,7 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'l
     };
 
     v.showNextPost = function(){
-        if ( ! v.has( v.index + 3 ) ){
+        if ( ! v.has( v.index + v.options.lookAhead ) ){
             v.getPosts( v.options.postsToRetrieve ).then( v.addPosts );
         }
 
