@@ -16,7 +16,7 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'l
         postsToRetrieve: 10,
         postsPerPage: 7,
         postsPerAdRotation: 3,
-        activePostCount: 5,
+        activePostCount: 7,
         endpoint: '/posts/page/{{page}}/' // should be '/posts/{{count}}'
     };
 
