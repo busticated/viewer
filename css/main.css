@@ -285,11 +285,6 @@ h2 {
 .ad-group {
   margin-top: 9999px;
   visibility: hidden;
-  -webkit-transition: margin-top 0.75s;
-  -moz-transition: margin-top 0.75s;
-  -ms-transition: margin-top 0.75s;
-  -o-transition: margin-top 0.75s;
-  transition: margin-top 0.75s;
 }
 .ad-group.is-visible {
   margin-top: 0;
