@@ -45,7 +45,7 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'l
     };
 
     v.listen = function(){
-        var debounceTimer = null;
+        var timerId = null;
 
         $( document )
             .on( 'keydown', function( e ){
@@ -68,14 +68,14 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'l
             .on( 'waypoint.reached', function( e, direction ){
                 v.setIndex( $( e.target ).data( 'postIndex' ) );
 
-                debounceTimer && clearTimeout( debounceTimer );
-                debounceTimer = setTimeout(function(){
+                timerId && cancelAnimationFrame( timerId );
+                timerId = requestAnimationFrame(function(){
                     if ( direction === 'up' ){
                         v.showPreviousPost();
                     } else {
                         v.showNextPost();
                     }
-                }, 0 );
+                });
 
                 v.setCurrentPage( direction ).rotateAds();
 
