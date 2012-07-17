@@ -1,6 +1,6 @@
 /* global define: false, require: false */
 
-define( [ 'jquery', 'mods/mastercontrol', 'mods/ads' ], function( $, mc, ads ){
+define( [ 'jquery', 'mods/mastercontrol', 'mods/ads', 'mods/utils' ], function( $, mc, ads, utils ){
     'use strict';
 
     var a = {};
@@ -22,7 +22,6 @@ define( [ 'jquery', 'mods/mastercontrol', 'mods/ads' ], function( $, mc, ads ){
         debounceBy: 1000
     };
 
-
     a.setup = function(){
         $( a.options.container ).prepend( a.options.tmpl );
         ads.render( '#js-adgroup-01, #js-adgroup-02' );
@@ -41,7 +40,19 @@ define( [ 'jquery', 'mods/mastercontrol', 'mods/ads' ], function( $, mc, ads ){
 
         a.rotateAds.__timer = setTimeout(function(){
             $( '#js-adgroup-01, #js-adgroup-02' ).toggleClass( 'is-visible' );
+            a.refreshAds();
         }, a.options.debounceBy );
+
+        return this;
+    };
+
+    a.refreshAds = function(){
+        var scope = '#js-adgroup-01:not(.is-visible), #js-adgroup-02:not(.is-visible)';
+
+        $( scope ).find( '.js-ad' ).empty().each(function( idx, slot ){
+            $( slot ).attr( 'id', 'ad-' + utils.makeGUID() );
+        });
+        ads.render( '#js-adgroup-01:not(.is-visible), #js-adgroup-02:not(.is-visible)' );
 
         return this;
     };
