@@ -3,13 +3,14 @@ require.config({
         'jquery': 'libs/jquery'
     }
 });
-require( [ 'jquery', 'mods/mastercontrol', 'mods/appStatus', 'mods/viewer', 'mods/postservice', 'mods/ads-rotator' ], function( $, mc, status, viewer, postsrvc, adRotator ){
+require( [ 'jquery', 'mods/mastercontrol', 'mods/appStatus', 'mods/viewer', 'mods/postservice', 'mods/ads', 'mods/ads-rotator' ], function( $, mc, status, viewer, postsrvc, ads, adRotator ){
     'use strict';
 
     postsrvc.setup();
 
     viewer.setup().listen();
 
+    ads.setup();
     adRotator.setup().listen();
 
     status.setup().listen();

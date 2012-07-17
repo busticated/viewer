@@ -1,6 +1,6 @@
 /* global define: false, require: false */
 
-define( [ 'jquery', 'mods/mastercontrol' ], function( $, mc ){
+define( [ 'jquery', 'mods/mastercontrol', 'mods/ads' ], function( $, mc, ads ){
     'use strict';
 
     var a = {};
@@ -25,6 +25,7 @@ define( [ 'jquery', 'mods/mastercontrol' ], function( $, mc ){
 
     a.setup = function(){
         $( a.options.container ).prepend( a.options.tmpl );
+        ads.render( '#js-adgroup-01, #js-adgroup-02' );
 
         return this;
     };
