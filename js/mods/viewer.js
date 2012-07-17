@@ -45,6 +45,8 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'l
     };
 
     v.listen = function(){
+        var debounceTimer = null;
+
         $( document )
             .on( 'keydown', function( e ){
                 switch ( e.keyCode ){
@@ -66,11 +68,14 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'l
             .on( 'waypoint.reached', function( e, direction ){
                 v.setIndex( $( e.target ).data( 'postIndex' ) );
 
-                if ( direction === 'up' ){
-                    v.showPreviousPost();
-                } else {
-                    v.showNextPost();
-                }
+                debounceTimer && clearTimeout( debounceTimer );
+                debounceTimer = setTimeout(function(){
+                    if ( direction === 'up' ){
+                        v.showPreviousPost();
+                    } else {
+                        v.showNextPost();
+                    }
+                }, 0 );
 
                 v.setCurrentPage( direction ).rotateAds();
 
@@ -201,7 +206,7 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'l
     };
 
     v.showNextPost = function(){
-        if ( v.isLast( v.index + 3 ) ){
+        if ( ! v.has( v.index + 3 ) ){
             v.getPosts( v.options.postsToRetrieve ).then( v.addPosts );
         }
 
@@ -212,10 +217,6 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'l
     };
 
     v.showPreviousPost = function(){
-        if ( v.isFirst() ){
-            return;
-        }
-
         v.resurrectPosts();
         v.trimPostsBelow();
 
@@ -249,7 +250,7 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'l
     };
 
     // todo:
-    // + way points fire twice when scrolling up(?) causing
+    // + waypoints fire twice when scrolling up(?) causing
     //   the index to increment inaccurately
     v.rotateAds = function(){
         var adIndex = v.scrollState.postsViewed += 1;
