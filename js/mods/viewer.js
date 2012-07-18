@@ -44,6 +44,15 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'm
     v.listen = function(){
         var timerId = null;
 
+        mc.on( 'fb-sharecounts-available', function( shares ){
+            console.dir( shares );
+            for ( var i = 0, l = shares.length; i < l; i += 1 ){
+                if ( typeof v.collection[ 'aid-' + shares[ i ].id ] === 'object' ){
+                    v.collection[ 'aid-' + shares[ i ].id ].fbshares = shares[ i ].count;
+                }
+            }
+        });
+
         $( document )
             .on( 'keydown', function( e ){
                 switch ( e.keyCode ){

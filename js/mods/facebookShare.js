@@ -44,20 +44,18 @@ define(['jquery', 'mods/mastercontrol' ], function ( $, mc ) {
                 countsNeeded.push( post.url );
             });
 
-            f.getCounts( countsNeeded ).then(function( data ){
-                console.dir( data );
-            });
+            f.getCounts( countsNeeded ).then( f.broadcastCounts );
         });
 
         return this;
     };
 
-    f.getCounts = function ( counts ) {
+    f.getCounts = function ( idsToRetrieve ) {
         var deferred = $.Deferred(),
             fbUrl = 'http://graph.facebook.com/?ids=',
             xhr;
 
-        $.each(counts, function ( key, val ) {
+        $.each( idsToRetrieve, function ( key, val ) {
             fbUrl += encodeURIComponent( val ) + ',';
         });
 
@@ -68,6 +66,22 @@ define(['jquery', 'mods/mastercontrol' ], function ( $, mc ) {
         });
 
         return deferred.promise();
+    };
+
+    f.broadcastCounts = function ( counts ){
+        var shares = [];
+
+        $.each( counts, function( key, val ){
+            shares.push({
+                id: val.id.match(/\d+$/)[0],
+                url: val.id,
+                count: f.formatCount( val.shares )
+            });
+        });
+
+        mc.emit( 'fb-sharecounts-available', shares );
+
+        return this;
     };
 
     f.formatCount = function ( shareCount ) {
