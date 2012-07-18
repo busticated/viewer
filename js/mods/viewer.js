@@ -91,18 +91,15 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'm
     // + need a more reliable way to track & handle failed page loads
     v.currentPage = 1;
     v.getPosts = function( count ){
-        var xhr = $.ajax({
-            url: v.options.endpoint.replace( '{{page}}', v.currentPage )
-        });
+        var deferred = $.Deferred(),
+            xhr = $.ajax({
+                url: v.options.endpoint.replace( '{{page}}', v.currentPage ),
+                success: deferred.resolve
+            });
 
         v.currentPage += 1;
 
-        return {
-            then: function( callback ){
-                xhr.success( callback );
-                return this;
-            }
-        };
+        return deferred.promise();
     };
 
     v.getActivePostsRange = function(){
