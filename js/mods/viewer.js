@@ -130,15 +130,19 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'm
     //   but need to set in a closure.. or maybe just call $.waypoints( 'refresh' )
     //   at some appropriate time in the future?
     v.addPosts = function( postData ){
-        var insertFrom = v.length;
+        var insertFrom = v.length,
+            newlyAddedPosts = [];
 
         v.add( postData, insertFrom );
         v.each( function( post, idx ){
             if ( idx >= insertFrom ){
                 v.update( idx, new PostModel( post, idx ) );
                 v.get( idx ).$el.appendTo( '#js-poststream' ).waypoint();
+                newlyAddedPosts.push( v.get( idx ) );
             }
         });
+
+        mc.emit( 'iscroll-newcontentadded', newlyAddedPosts );
 
         return this;
     };
