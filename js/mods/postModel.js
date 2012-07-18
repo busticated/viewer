@@ -20,7 +20,24 @@ define( [ 'jquery', 'libs/handlebars' ], function ( $, Handlebars ) {
         this.$el = $el;
         this.html = postHtml;
         this.innerHtml = $el[ 0 ].innerHTML;
-        this.render = function(){};
+        this.isClearedClass = 'is-cleared';
+    };
+
+    Post.prototype = {
+        isActive: function(){
+            return ! this.$el.hasClass( this.isClearedClass );
+        },
+        render: function(){
+            this.$el.html( this.innerHtml );
+            this.$el.removeClass( this.isClearedClass );
+            return this;
+        },
+        remove: function(){
+            this.$el.height( this.$el.outerHeight() );
+            this.$el.addClass( this.isClearedClass );
+            this.$el.empty();
+            return this;
+        }
     };
 
     return Post;

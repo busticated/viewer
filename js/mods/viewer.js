@@ -11,7 +11,6 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'm
     v.options = {
         container: '#js-poststream',
         isLoadingClass: '.is-loading',
-        isClearedClass: '.is-cleared',
         postsToRetrieve: 10,
         postsPerPage: 7,
         postsPerAdRotation: 3,
@@ -166,10 +165,8 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'm
 
     v.trimPosts = function( from, to ){
         v.each(function( post, idx ){
-            if ( idx >= from && idx <= to && ! post.$el.hasClass( v.options.isClearedClass ) ){
-                post.$el.height( post.$el.outerHeight() );
-                post.$el.addClass( v.options.isClearedClass.replace( '.', '' ) );
-                post.$el.empty();
+            if ( idx >= from && idx <= to && post.isActive() ){
+                post.remove();
             }
         });
 
@@ -180,9 +177,8 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'm
         var activePosts = v.getActivePostsRange();
 
         v.each(function( post, idx ){
-            if ( idx >= activePosts.start && idx < activePosts.end && post.$el.hasClass( v.options.isClearedClass.replace( '.', '' ) ) ){
-                post.$el.html( post.innerHtml );
-                post.$el.removeClass( v.options.isClearedClass.replace( '.', '' ) );
+            if ( idx >= activePosts.start && idx < activePosts.end && ! post.isActive() ){
+                post.render();
             }
         });
 
