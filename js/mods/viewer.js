@@ -125,14 +125,18 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'm
     //   post.$el.one( 'load', function(){ post.$el.waypoint() );
     //   but need to set in a closure.. or maybe just call $.waypoints( 'refresh' )
     //   at some appropriate time in the future?
-    v.addPosts = function( postData ){
+    // + extract the .each() callback into a stand-alone method
+    v.addPosts = function( rawPosts ){
         var insertFrom = v.length,
-            newlyAddedPosts = [];
+            newlyAddedPosts = [],
+            post;
 
-        v.add( postData, insertFrom );
-        v.each( function( post, idx ){
+        v.add( rawPosts, insertFrom );
+        v.each( function( rawPost, idx ){
             if ( idx >= insertFrom ){
-                v.update( idx, new PostModel( post, idx ) );
+                post = new PostModel( rawPost, idx );
+                v.collection[ 'aid-' + post.id ] = post;
+                v.update( idx, post );
                 v.get( idx ).$el.appendTo( '#js-poststream' ).waypoint();
                 newlyAddedPosts.push( v.get( idx ) );
             }
