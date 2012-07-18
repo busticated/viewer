@@ -3,6 +3,8 @@
 define( [ 'mods/fakeajaxservice', 'mods/fakePostData' ], function( Fakejax, fakePostData ){
     'use strict';
 
+    var ROOT_URL = 'http://cheezburger.com/';
+
     var makePost = function(){
         var idx = random( 0, fakePostData.length - 1 ),
             rawPost = fakePostData[ idx ],
@@ -19,6 +21,7 @@ define( [ 'mods/fakeajaxservice', 'mods/fakePostData' ], function( Fakejax, fake
 
         return {
             id: id,
+            url: ROOT_URL + id,
             title: title,
             body: body,
             asset: {
