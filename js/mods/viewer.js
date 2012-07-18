@@ -1,6 +1,6 @@
 /* global define: false, require: false */
 
-define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'libs/polyfills', 'libs/waypoints' ], function( $, Handlebars, Iterator, mc ){
+define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'mods/postModel', 'libs/polyfills', 'libs/waypoints' ], function( $, Handlebars, Iterator, mc, PostModel ){
     'use strict';
 
     var wasSetup = false,
@@ -12,7 +12,6 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'l
         container: '#js-poststream',
         isLoadingClass: '.is-loading',
         isClearedClass: '.is-cleared',
-        postTemplate: null,
         postsToRetrieve: 10,
         postsPerPage: 7,
         postsPerAdRotation: 3,
@@ -36,8 +35,6 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'l
         if ( ! v.options.postTemplate ){
             v.options.postTemplate = $( '#tmpl-post' ).html();
         }
-
-        v.setTemplate( v.options.postTemplate );
 
         v.getPosts( v.options.postsToRetrieve ).then( v.addPosts );
 
@@ -136,20 +133,9 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'l
         var insertFrom = v.length;
 
         v.add( postData, insertFrom );
-
         v.each( function( post, idx ){
             if ( idx >= insertFrom ){
-                var postHtml = tmpl( post ),
-                    $el = $( postHtml ).data( 'postIndex', idx );
-
-                v.update( idx, {
-                    $el: $el,
-                    html: postHtml,
-                    innerHtml: $el[ 0 ].innerHTML,
-                    id: $el.data( 'aid' ),
-                    render: function(){}
-                });
-
+                v.update( idx, new PostModel( post, idx ) );
                 v.get( idx ).$el.appendTo( '#js-poststream' ).waypoint();
             }
         });
@@ -223,15 +209,6 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'l
     v.setScrollPosition = function( offset ){
         $( document ).scrollTop( offset );
         return this;
-    };
-
-    v.setTemplate = function( template ){
-        tmpl = Handlebars.compile( template );
-        return this;
-    };
-
-    v.getTemplate = function(){
-        return tmpl;
     };
 
     v.setCurrentPage = function( direction ){
