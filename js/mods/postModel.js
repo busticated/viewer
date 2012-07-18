@@ -15,10 +15,11 @@ define( [ 'jquery', 'libs/handlebars' ], function ( $, Handlebars ) {
         postHtml = tmpl( postData );
         $el = $( postHtml ).data( 'postIndex', idx );
 
+        this.id = postData.id;
+        this.url = postData.url;
         this.$el = $el;
         this.html = postHtml;
         this.innerHtml = $el[ 0 ].innerHTML;
-        this.id = postData.id;
         this.render = function(){};
     };
 
