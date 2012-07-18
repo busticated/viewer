@@ -179,11 +179,6 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'l
 
     v.trimPosts = function( from, to ){
         v.each(function( post, idx ){
-            // looks like the act of checking a class causes a reflow...
-            // use post.$el.data( 'isCleared' ) instead?
-            // or store on the post object itself - e.g. post.isCleared = true;
-            // - or - 
-            // need to reduce the iterations somehow?
             if ( idx >= from && idx <= to && ! post.$el.hasClass( v.options.isClearedClass ) ){
                 post.$el.height( post.$el.outerHeight() );
                 post.$el.addClass( v.options.isClearedClass.replace( '.', '' ) );
