@@ -52,6 +52,7 @@ define( [ 'jquery', 'mods/mastercontrol', 'mods/ads', 'mods/utils' ], function( 
         $( scope ).find( '.js-ad' ).empty().each(function( idx, slot ){
             $( slot ).attr( 'id', 'ad-' + utils.makeGUID() );
         });
+
         ads.render( '#js-adgroup-01:not(.is-visible), #js-adgroup-02:not(.is-visible)' );
 
         return this;
