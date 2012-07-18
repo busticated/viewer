@@ -3,7 +3,7 @@
 
 //  For documentation on API for google ads service, see: http://support.google.com/dfp_premium/bin/answer.py?hl=en&answer=1650154
 
-define(['jquery', 'mods/utils', 'libs/handlebars', 'mods/mastercontrol' ], function ( $, utils, Handlebars, mc ) {
+define(['jquery', 'mods/utils', 'libs/handlebars', 'mods/mastercontrol', 'libs/polyfills' ], function ( $, utils, Handlebars, mc ) {
     var slotTemplate = '<div id="{{id}}" class="{{cssClasses}}" data-adtype="{{type}}" data-adsize="{{size}}"></div>',
         activeSlots = {},
         _configs = {
@@ -93,7 +93,9 @@ define(['jquery', 'mods/utils', 'libs/handlebars', 'mods/mastercontrol' ], funct
 
         googletag.cmd.push(function () {
             activeSlots[ id ] = googletag.defineSlot( adUnit, size, id ).addService( _service );
-            googletag.display( id );
+            requestAnimationFrame(function(){
+                googletag.display( id );
+            });
         });
 
         return this;
