@@ -3,7 +3,6 @@
 define( [ 'jquery', 'libs/sinon' ], function( $, sinon ){
     'use strict';
 
-    var server = sinon.fakeServer.create();
     var random = function ( from, to ){
         return Math.floor( Math.random() * ( to - from + 1 ) + from );
     };
@@ -12,16 +11,32 @@ define( [ 'jquery', 'libs/sinon' ], function( $, sinon ){
         createResponse: $.noop
     };
 
-   server.autoRespond = true;
-   server.autoRespondAfter = random( 50, 1000 );
-
     var Fake = function( cfg ){
+        var self;
+
         if ( ! ( this instanceof Fake ) ){
             return new Fake();
         }
 
+        self = this;
         this.options = $.extend( options, cfg );
-        server.respondWith( this.options.endpoint, this.options.createResponse );
+        this.server = sinon.fakeServer.create();
+
+        this.server.useFilters = true;
+        this.server.autoRespond = true;
+        this.server.autoRespondAfter = random( 50, 1000 );
+
+        sinon.fakeServer.xhr.useFilters = true;
+        sinon.fakeServer.xhr.addFilter(function( method, url ){
+            return self.filterRequest( url );
+        });
+
+
+        this.server.respondWith( this.options.endpoint, this.options.createResponse );
+    };
+
+    Fake.prototype.filterRequest = function( url ){
+        return ! this.options.endpoint.test( url );
     };
 
     return Fake;
