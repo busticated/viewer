@@ -12,6 +12,7 @@ define( [ 'libs/eventer' ], function ( Eventer ) {
         this.body = postData.body;
         this.url = postData.url;
         this.fbshares = '';
+        this.assetType = postData.AssetType;
         this.asset = {
             height: postData.asset.height,
             width: postData.asset.width,
@@ -21,8 +22,7 @@ define( [ 'libs/eventer' ], function ( Eventer ) {
         this.isActive = true;
     };
 
-    PostModel.prototype = new Eventer();
-
+    PostModel.prototype = Object.create( Eventer.prototype );
     PostModel.prototype.constructor = PostModel;
 
     PostModel.prototype.set = function( prop, val ){

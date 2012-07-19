@@ -1,6 +1,18 @@
 /* global define: false, require: false */
 
-define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'mods/postModel', 'mods/postView', 'libs/polyfills', 'libs/waypoints' ], function( $, Handlebars, Iterator, mc, PostModel, PostView ){
+define([
+        'jquery',
+        'libs/handlebars',
+        'libs/iterator',
+        'mods/mastercontrol',
+        'mods/postModel',
+        'mods/postView',
+        'mods/sponsoredPostModel',
+        'mods/sponsoredPostView',
+        'libs/polyfills',
+        'libs/waypoints'
+    ],
+    function( $, Handlebars, Iterator, mc, PostModel, PostView, SponsoredPostModel, SponsoredPostView ){
     'use strict';
 
     var wasSetup = false,
@@ -14,6 +26,7 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'm
         postsToRetrieve: 10,
         postsPerPage: 7,
         postsPerAdRotation: 3,
+        postsPerSponsoredPost: 3,
         activePostCount: 7,
         lookAhead: 5,
         endpoint: '/posts/page/{{page}}/' // should be '/posts/{{count}}'
@@ -136,7 +149,9 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'm
         var insertFrom = v.length,
             newlyAddedPosts = [],
             post,
-            postView;
+            sponsoredPost,
+            postView,
+            sponsoredPostView;
 
         v.add( rawPosts, insertFrom );
         v.each( function( rawPost, idx ){
