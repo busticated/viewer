@@ -31,6 +31,7 @@ define( [ 'libs/eventer' ], function ( Eventer ) {
         }
 
         this[ prop ] = val;
+        this.emit( 'update', { property: prop, value: val } );
         this.emit( 'update:' + prop, val );
 
         return this;

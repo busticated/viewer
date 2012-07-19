@@ -57,14 +57,14 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'm
                     case 40:
                     case 74:
                         e.preventDefault();
-                        v.hasNext() && v.setScrollPosition( v.getNext().$el.offset().top + 1 );
+                        v.hasNext() && v.getNext().emit( 'selected', 1 );
                         break;
 
                     // Prev: 75 = k, 38 = up arrow
                     case 38:
                     case 75:
                         e.preventDefault();
-                        v.hasPrev() && v.setScrollPosition( v.getPrev().$el.offset().top - 1 );
+                        v.hasPrev() && v.getPrev().emit( 'selected', -1 );
                         break;
                 }
             })
@@ -212,11 +212,6 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'm
         v.resurrectPosts();
         v.trimPostsBelow();
 
-        return this;
-    };
-
-    v.setScrollPosition = function( offset ){
-        $( document ).scrollTop( offset );
         return this;
     };
 

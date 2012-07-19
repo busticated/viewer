@@ -28,14 +28,14 @@ define( [ 'jquery', 'libs/handlebars' ], function ( $, Handlebars ) {
         this.model.on( 'update:fbshares', function(){
             self.render();
         });
+        this.model.on( 'selected', function( offset ){
+            self.select( offset );
+        });
 
         this.setup();
     };
 
     PostView.prototype = {
-        isActive: function(){
-            return ! this.$el.hasClass( this.isClearedClass );
-        },
         setup: function(){
             this.$el.appendTo( '#js-poststream' ).waypoint();
             return this;
@@ -55,8 +55,9 @@ define( [ 'jquery', 'libs/handlebars' ], function ( $, Handlebars ) {
             this.$el.empty();
             return this;
         },
-        updateFBShares: function( shares ){
-            
+        select: function( offset ){
+            $( document ).scrollTop( this.$el.offset().top + offset );
+            return this;
         }
     };
 
