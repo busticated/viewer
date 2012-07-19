@@ -1,6 +1,6 @@
 /* global define: false, require: false */
 
-define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'mods/postModel', 'libs/polyfills', 'libs/waypoints' ], function( $, Handlebars, Iterator, mc, PostModel ){
+define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'mods/postModel', 'mods/postView', 'libs/polyfills', 'libs/waypoints' ], function( $, Handlebars, Iterator, mc, PostModel, PostView ){
     'use strict';
 
     var wasSetup = false,
@@ -31,10 +31,6 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'm
 
         $.extend( v.options, cfg );
 
-        if ( ! v.options.postTemplate ){
-            v.options.postTemplate = $( '#tmpl-post' ).html();
-        }
-
         v.getPosts( v.options.postsToRetrieve ).then( v.addPosts );
 
         window.viewer = v;
@@ -45,15 +41,16 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'm
         var timerId = null;
 
         mc.on( 'fb-sharecounts-available', function( shares ){
-            console.dir( shares );
             for ( var i = 0, l = shares.length; i < l; i += 1 ){
                 if ( typeof v.collection[ 'aid-' + shares[ i ].id ] === 'object' ){
-                    v.collection[ 'aid-' + shares[ i ].id ].fbshares = shares[ i ].count;
+                    v.collection[ 'aid-' + shares[ i ].id ].set( 'fbshares', shares[ i ].count );
                 }
             }
         });
 
         $( document )
+            // todo:
+            // + fix these now that $el is on the view
             .on( 'keydown', function( e ){
                 switch ( e.keyCode ){
                     // Next: 74 = j, 40 = down arrow
@@ -138,16 +135,18 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'm
     v.addPosts = function( rawPosts ){
         var insertFrom = v.length,
             newlyAddedPosts = [],
-            post;
+            post,
+            postView;
 
         v.add( rawPosts, insertFrom );
         v.each( function( rawPost, idx ){
             if ( idx >= insertFrom ){
-                post = new PostModel( rawPost, idx );
+                post = new PostModel( rawPost );
+                postView = new PostView( post, idx );
+
                 v.collection[ 'aid-' + post.id ] = post;
                 v.update( idx, post );
-                v.get( idx ).$el.appendTo( '#js-poststream' ).waypoint();
-                newlyAddedPosts.push( v.get( idx ) );
+                newlyAddedPosts.push( post );
             }
         });
 
@@ -178,8 +177,8 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'm
 
     v.trimPosts = function( from, to ){
         v.each(function( post, idx ){
-            if ( idx >= from && idx <= to && post.isActive() ){
-                post.remove();
+            if ( idx >= from && idx <= to && post.isActive ){
+                post.set( 'isActive', false );
             }
         });
 
@@ -190,8 +189,8 @@ define( [ 'jquery', 'libs/handlebars', 'libs/iterator', 'mods/mastercontrol', 'm
         var activePosts = v.getActivePostsRange();
 
         v.each(function( post, idx ){
-            if ( idx >= activePosts.start && idx < activePosts.end && ! post.isActive() ){
-                post.render();
+            if ( idx >= activePosts.start && idx < activePosts.end && ! post.isActive ){
+                post.set( 'isActive', true );
             }
         });
 
