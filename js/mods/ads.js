@@ -5,6 +5,7 @@
 
 define(['jquery', 'mods/utils', 'libs/handlebars', 'mods/mastercontrol', 'libs/polyfills' ], function ( $, utils, Handlebars, mc ) {
     var slotTemplate = '<div id="{{id}}" class="{{cssClasses}}" data-adtype="{{type}}" data-adsize="{{size}}"></div>',
+        tmpl = Handlebars.compile( slotTemplate ),
         activeSlots = {},
         _configs = {
             HasAsyncAds: true,
@@ -124,7 +125,7 @@ define(['jquery', 'mods/utils', 'libs/handlebars', 'mods/mastercontrol', 'libs/p
             size: size
         };
 
-        return Mustache.render( slotTemplate, model );
+        return tmpl( model );
     };
 
     var buildAdContainer = function () {
