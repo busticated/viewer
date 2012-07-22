@@ -1,6 +1,8 @@
 /* jshint */
 /*global define: false, require: false */
 define( [ 'mods/model', 'libs/polyfills' ], function ( Model ) {
+    'use strict';
+
     var PostModel = function PostModel( postData ){
         if ( ! ( this instanceof PostModel ) ){
             return new PostModel( postData );
