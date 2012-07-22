@@ -7,7 +7,6 @@ define([
         'mods/mastercontrol',
         'mods/postModel',
         'mods/postView',
-        'libs/polyfills',
         'libs/waypoints'
     ],
     function( $, Handlebars, Iterator, mc, PostModel, PostView ){
@@ -117,22 +116,6 @@ define([
         return deferred.promise();
     };
 
-    v.getActivePostsRange = function(){
-        var count = Math.round( v.options.activePostCount / 2 );
-
-        if ( v.index - count <= 0 ){
-            return {
-                start: 0,
-                end: v.options.activePostCount
-            };
-        }
-
-        return {
-            start: v.index - count,
-            end: v.index + count
-        };
-    };
-
     // todo:
     // + break into addPosts & displayPosts methods so that we can grab lots of posts
     //   at once but only display some subset of the collection we retreive
@@ -167,6 +150,22 @@ define([
         mc.emit( 'iscroll-newcontentadded', newlyAddedPosts );
 
         return this;
+    };
+
+    v.getActivePostsRange = function(){
+        var count = Math.round( v.options.activePostCount / 2 );
+
+        if ( v.index - count <= 0 ){
+            return {
+                start: 0,
+                end: v.options.activePostCount
+            };
+        }
+
+        return {
+            start: v.index - count,
+            end: v.index + count
+        };
     };
 
     v.trimPostsAbove = function(){
