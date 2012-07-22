@@ -51,8 +51,8 @@ define(['jquery', 'mods/utils', 'libs/handlebars', 'mods/mastercontrol', 'libs/p
         return this;
     };
 
-    var render = function ( scope ) {
-        var $ads = $( 'div.js-ad', $( scope || document ) ),
+    var render = function ( $scope ) {
+        var $ads = $( 'div.js-ad', $scope || document ),
             type, size, id;
 
         $ads.each(function () {

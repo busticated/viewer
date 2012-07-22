@@ -47,13 +47,13 @@ define( [ 'jquery', 'mods/mastercontrol', 'mods/ads', 'mods/utils' ], function( 
     };
 
     a.refreshAds = function(){
-        var scope = '#js-adgroup-01:not(.is-visible), #js-adgroup-02:not(.is-visible)';
+        var $scope = $( '#js-adgroup-01:not(.is-visible), #js-adgroup-02:not(.is-visible)' );
 
-        $( scope ).find( '.js-ad' ).empty().each(function( idx, slot ){
+        $scope.find( '.js-ad' ).empty().each(function( idx, slot ){
             $( slot ).attr( 'id', 'ad-' + utils.makeGUID() );
         });
 
-        ads.render( '#js-adgroup-01:not(.is-visible), #js-adgroup-02:not(.is-visible)' );
+        ads.render( $scope );
 
         return this;
     };
