@@ -1,6 +1,6 @@
 /* jshint */
 /*global define: false, require: false */
-define( [ 'libs/eventer' ], function ( Eventer ) {
+define( [ 'libs/eventer', 'libs/polyfills' ], function ( Eventer ) {
     var Model = function Model(){
         Eventer.call( this );
     };

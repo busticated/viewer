@@ -40,7 +40,7 @@ define( [ 'jquery', 'libs/handlebars', 'mods/view', 'libs/polyfills' ], function
             return this;
         },
         render: function(){
-            this.innerHtml = $( tmpl( this.model ) )[ 0 ].innerHTML;
+            this.innerHtml = $( this.tmpl( this.model ) )[ 0 ].innerHTML;
             this.$el.html( this.innerHtml );
             this.$el.removeClass( this.isClearedClass );
             return this;

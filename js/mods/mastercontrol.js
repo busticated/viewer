@@ -1,9 +1,9 @@
 /* global define: false, require: false */
 
-define( [ 'jquery', 'libs/eventer', 'libs/polyfills' ], function( $, Eventer ){
+define( [ 'jquery', 'libs/eventer' ], function( $, Eventer ){
     'use strict';
 
-    var mc = Object.create( new Eventer() );
+    var mc = new Eventer();
 
     return mc;
 });

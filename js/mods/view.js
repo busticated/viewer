@@ -7,18 +7,10 @@ define( [ 'jquery' ], function ( $ ) {
     };
 
     View.prototype = {
-        setup: function(){
-            return this;
-        },
-        render: function(){
-            return this;
-        },
-        remove: function(){
-            return this;
-        },
-        select: function(){
-            return this;
-        }
+        setup: $.noop,
+        render: $.noop,
+        remove: $.noop,
+        select: $.noop
     };
 
     return View;

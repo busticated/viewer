@@ -20,7 +20,6 @@ define([
 
     v.options = {
         container: '#js-poststream',
-        isLoadingClass: '.is-loading',
         postsToRetrieve: 10,
         postsPerPage: 7,
         postsPerAdRotation: 3,
@@ -92,12 +91,6 @@ define([
                 });
 
                 v.setCurrentPage( direction ).rotateAds();
-
-                // mc.emit( 'status', {
-                //     type: 'ok',
-                //     msg: 'viewing post ',
-                //     data: v.index + 1
-                // });
             });
 
         return this;
@@ -147,9 +140,7 @@ define([
         var insertFrom = v.length,
             newlyAddedPosts = [],
             post,
-            sponsoredPost,
-            postView,
-            sponsoredPostView;
+            postView;
 
         v.add( rawPosts, insertFrom );
         v.each( function( rawPost, idx ){
