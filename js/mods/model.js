@@ -1,7 +1,12 @@
 /* jshint */
 /*global define: false, require: false */
 define( [ 'libs/eventer', 'libs/polyfills' ], function ( Eventer ) {
+    'use strict';
+
     var Model = function Model(){
+        if ( ! ( this instanceof Model ) ){
+            return new Model();
+        }
         Eventer.call( this );
     };
 

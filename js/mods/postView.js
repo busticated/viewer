@@ -1,6 +1,8 @@
 /* jshint */
 /*global define: false, require: false */
 define( [ 'jquery', 'libs/handlebars', 'mods/view', 'libs/polyfills' ], function ( $, Handlebars, View ) {
+    'use strict';
+
     var tmpl = Handlebars.compile( $( '#tmpl-post' ).html() );
 
     var PostView = function PostView( post, idx ){
@@ -34,27 +36,28 @@ define( [ 'jquery', 'libs/handlebars', 'mods/view', 'libs/polyfills' ], function
     PostView.prototype = Object.create( View.prototype );
     PostView.prototype.constructor = PostView;
 
-    PostView.prototype = {
-        setup: function(){
-            this.$el.appendTo( '#js-poststream' ).waypoint();
-            return this;
-        },
-        render: function(){
-            this.innerHtml = $( this.tmpl( this.model ) )[ 0 ].innerHTML;
-            this.$el.html( this.innerHtml );
-            this.$el.removeClass( this.isClearedClass );
-            return this;
-        },
-        remove: function(){
-            this.$el.height( this.$el.outerHeight() );
-            this.$el.addClass( this.isClearedClass );
-            this.$el.empty();
-            return this;
-        },
-        select: function( nudge ){
-            $( document ).scrollTop( this.$el.offset().top + nudge );
-            return this;
-        }
+    PostView.prototype.setup = function(){
+        this.$el.appendTo( '#js-poststream' ).waypoint();
+        return this;
+    };
+
+    PostView.prototype.render = function(){
+        this.innerHtml = $( this.tmpl( this.model ) )[ 0 ].innerHTML;
+        this.$el.html( this.innerHtml );
+        this.$el.removeClass( this.isClearedClass );
+        return this;
+    };
+
+    PostView.prototype.remove = function(){
+        this.$el.height( this.$el.outerHeight() );
+        this.$el.addClass( this.isClearedClass );
+        this.$el.empty();
+        return this;
+    };
+
+    PostView.prototype.select = function( nudge ){
+        $( document ).scrollTop( this.$el.offset().top + nudge );
+        return this;
     };
 
     return PostView;
