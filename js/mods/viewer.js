@@ -13,10 +13,9 @@ define([
     function( $, Handlebars, Iterator, mc, PostModel, PostView ){
     'use strict';
 
-    var wasSetup = false,
-        tmpl;
+    var tmpl;
 
-    var v = Object.create( new Iterator() );
+    var v = new Iterator();
 
     v.options = {
         container: '#js-poststream',
@@ -35,10 +34,6 @@ define([
     };
 
     v.setup = function( cfg ){
-        if ( wasSetup ){
-            return this;
-        }
-
         $.extend( v.options, cfg );
 
         v.bootstrapPosts().then( v.addPosts );
