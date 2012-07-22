@@ -278,7 +278,7 @@ h2 {
 	.is-valid
 	.is-invalid
 */
-.ad-container {
+.ad-container.ad-rotator {
   position: fixed;
   width: 960px;
 }
