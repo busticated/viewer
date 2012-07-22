@@ -1,20 +1,16 @@
 /* jshint */
 /*global define: false, require: false */
-define( [ 'jquery', 'libs/handlebars' ], function ( $, Handlebars ) {
-    var tmpl, $el, postHtml;
+define( [ 'jquery', 'libs/handlebars', 'mods/view', 'libs/polyfills' ], function ( $, Handlebars, View ) {
+    var tmpl = Handlebars.compile( $( '#tmpl-post' ).html() );
 
-    var PostView = function( post, idx ){
+    var PostView = function PostView( post, idx ){
         if ( ! ( this instanceof PostView ) ){
             return new PostView( post, idx );
         }
 
-        if ( ! tmpl ){
-            tmpl = Handlebars.compile( $( '#tmpl-post' ).html() );
-        }
-
+        View.call( this, post, tmpl );
         var self = this;
-        this.model = post;
-        this.$el = $( tmpl( this.model ) ).data( 'postIndex', idx );
+        this.$el = $( this.tmpl( this.model ) ).data( 'postIndex', idx );
         this.innerHtml = this.$el[ 0 ].innerHTML;
         this.isClearedClass = 'is-cleared';
 
@@ -28,12 +24,15 @@ define( [ 'jquery', 'libs/handlebars' ], function ( $, Handlebars ) {
         this.model.on( 'update:fbshares', function(){
             self.render();
         });
-        this.model.on( 'selected', function( offset ){
-            self.select( offset );
+        this.model.on( 'selected', function( nudge ){
+            self.select( nudge );
         });
 
         this.setup();
     };
+
+    PostView.prototype = Object.create( View.prototype );
+    PostView.prototype.constructor = PostView;
 
     PostView.prototype = {
         setup: function(){
@@ -41,9 +40,6 @@ define( [ 'jquery', 'libs/handlebars' ], function ( $, Handlebars ) {
             return this;
         },
         render: function(){
-            if (typeof this.model === 'undefined' ){
-                debugger;
-            }
             this.innerHtml = $( tmpl( this.model ) )[ 0 ].innerHTML;
             this.$el.html( this.innerHtml );
             this.$el.removeClass( this.isClearedClass );
@@ -55,8 +51,8 @@ define( [ 'jquery', 'libs/handlebars' ], function ( $, Handlebars ) {
             this.$el.empty();
             return this;
         },
-        select: function( offset ){
-            $( document ).scrollTop( this.$el.offset().top + offset );
+        select: function( nudge ){
+            $( document ).scrollTop( this.$el.offset().top + nudge );
             return this;
         }
     };
