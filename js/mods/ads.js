@@ -51,6 +51,15 @@ define(['jquery', 'mods/utils', 'libs/handlebars', 'mods/mastercontrol', 'libs/p
         return this;
     };
 
+    var listen = function(){
+        mc.on( 'iscroll-addsponsoredpost', function( target ){
+            var $spost = $( buildSponsoredPostForStream() ).appendTo( target );
+            render( $spost );
+        });
+
+        return this;
+    };
+
     var render = function ( $scope ) {
         var $ads = $( 'div.js-ad', $scope || document ),
             type, size, id;
@@ -176,6 +185,7 @@ define(['jquery', 'mods/utils', 'libs/handlebars', 'mods/mastercontrol', 'libs/p
     // public api /////////////////////////////////////////////////////////////
     return {
         setup: setup,
+        listen: listen,
         hasService: hasService,
         render: render,
         getSiteForTargeting: getSiteForTargeting,

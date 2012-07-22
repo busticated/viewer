@@ -11,7 +11,7 @@ require( [ 'jquery', 'mods/mastercontrol', 'mods/appStatus', 'mods/viewer', 'mod
     fbshare.listen();
     viewer.setup().listen();
 
-    ads.setup();
+    ads.setup().listen();
     adRotator.setup().listen();
 
     status.setup().listen();

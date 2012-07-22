@@ -7,12 +7,10 @@ define([
         'mods/mastercontrol',
         'mods/postModel',
         'mods/postView',
-        'mods/sponsoredPostModel',
-        'mods/sponsoredPostView',
         'libs/polyfills',
         'libs/waypoints'
     ],
-    function( $, Handlebars, Iterator, mc, PostModel, PostView, SponsoredPostModel, SponsoredPostView ){
+    function( $, Handlebars, Iterator, mc, PostModel, PostView ){
     'use strict';
 
     var wasSetup = false,
@@ -53,6 +51,8 @@ define([
     v.listen = function(){
         var timerId = null;
 
+        // this should eventually catch a generic "counts-available" event
+        // via mc.on( 'counts-available', { type: 'fbshare', counts: [ { id: <asset id>, count: <share count> } ] } );
         mc.on( 'fb-sharecounts-available', function( shares ){
             for ( var i = 0, l = shares.length; i < l; i += 1 ){
                 if ( typeof v.collection[ 'aid-' + shares[ i ].id ] === 'object' ){
@@ -62,8 +62,6 @@ define([
         });
 
         $( document )
-            // todo:
-            // + fix these now that $el is on the view
             .on( 'keydown', function( e ){
                 switch ( e.keyCode ){
                     // Next: 74 = j, 40 = down arrow
@@ -159,9 +157,8 @@ define([
                 post = new PostModel( rawPost );
                 postView = new PostView( post, idx );
 
-                if ( v.shouldInjectSponsoredPost( idx ) ){
-                    sponsoredPost = new SponsoredPostModel();
-                    sponsoredPostView = new SponsoredPostView( sponsoredPost, idx );
+                if ( v.shouldAddSponsoredPost( idx ) ){
+                    mc.emit( 'iscroll-addsponsoredpost', v.options.container );
                 }
 
                 v.collection[ 'aid-' + post.id ] = post;
@@ -258,7 +255,7 @@ define([
         return this;
     };
 
-    v.shouldInjectSponsoredPost = function( index ){
+    v.shouldAddSponsoredPost = function( index ){
         if ( v.scrollState.postsViewed === 0 ){
             return index === v.options.postsBeforeSponsoredPost - 1;
         }
