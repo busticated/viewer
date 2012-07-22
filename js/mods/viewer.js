@@ -159,6 +159,13 @@ define([
                 post = new PostModel( rawPost );
                 postView = new PostView( post, idx );
 
+                if ( idx === 0 && v.scrollState.postsViewed === 0 ){
+                    sponsoredPost = new SponsoredPostModel();
+                    sponsoredPostView = new SponsoredPostView( sponsoredPost, idx );
+                    window.__sponsoredPost = sponsoredPost;
+                    window.__sponsoredPostView = sponsoredPostView;
+                }
+
                 v.collection[ 'aid-' + post.id ] = post;
                 v.update( idx, post );
                 newlyAddedPosts.push( post );
