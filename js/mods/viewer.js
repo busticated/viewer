@@ -26,7 +26,7 @@ define([
         postsToRetrieve: 10,
         postsPerPage: 7,
         postsPerAdRotation: 3,
-        postsPerSponsoredPost: 3,
+        postsBeforeSponsoredPost: 3,
         activePostCount: 7,
         lookAhead: 5,
         endpoint: '/posts/page/{{page}}/' // should be '/posts/{{count}}'
@@ -159,11 +159,9 @@ define([
                 post = new PostModel( rawPost );
                 postView = new PostView( post, idx );
 
-                if ( idx === 0 && v.scrollState.postsViewed === 0 ){
+                if ( v.shouldInjectSponsoredPost( idx ) ){
                     sponsoredPost = new SponsoredPostModel();
                     sponsoredPostView = new SponsoredPostView( sponsoredPost, idx );
-                    window.__sponsoredPost = sponsoredPost;
-                    window.__sponsoredPostView = sponsoredPostView;
                 }
 
                 v.collection[ 'aid-' + post.id ] = post;
@@ -258,6 +256,14 @@ define([
             mc.emit( 'rotateAds' );
         }
         return this;
+    };
+
+    v.shouldInjectSponsoredPost = function( index ){
+        if ( v.scrollState.postsViewed === 0 ){
+            return index === v.options.postsBeforeSponsoredPost - 1;
+        }
+
+        return ( index - v.options.postsBeforeSponsoredPost + 1 ) % v.options.postsPerPage === 0;
     };
 
     return v;
