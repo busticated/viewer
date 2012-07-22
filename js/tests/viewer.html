@@ -26,9 +26,14 @@
 	test('confirm module methods & properties', function(){
 		testing.req.given(['mods/viewer'], function (module) {
 			var expected = {
+				index: 'number',
+				length: 'number',
+				collection: 'object',
 				options: 'object',
 				setup: 'function',
 				listen: 'function',
+				scrollState: 'object',
+				bootstrapPosts: 'function',
 				currentPage: 'number',
 				getPosts: 'function',
 				getActivePostsRange: 'function',
@@ -39,9 +44,10 @@
 				resurrectPosts: 'function',
 				showNextPost: 'function',
 				showPreviousPost: 'function',
-				setScrollPosition: 'function',
-				setTemplate: 'function',
-				getTemplate: 'function'
+				setCurrentPage: 'function',
+				getCurrentPage: 'function',
+				rotateAds: 'function',
+				shouldAddSponsoredPost: 'function'
 			};
 
 			expect(1 + Object.keys(expected).length);
@@ -55,22 +61,44 @@
 	});
 
 	test('When calling .setup()', function(){
-		testing.req.given(['mods/viewer'], function (viewer) {
-			postTemplate = '<p>{{id}} - {{title}}</p>';
-			postsToRetrieve = 7;
-			testing.sandbox.stub(viewer, 'setTemplate');
-			testing.sandbox.stub(viewer, 'getPosts');
-			viewer.getPosts.returns({ then: function(){} });
+		testing.req.given(['jquery', 'mods/viewer'], function ($, viewer) {
+			var mockOptions = {
+					container: '#js-foozle',
+					postsToRetrieve: 1,
+					postsPerPage: 2,
+					postsPerAdRotation: 3,
+					postsBeforeSponsoredPost: 4,
+					activePostCount: 5,
+					lookAhead: 6,
+					endpoint: '/path/to/salvation/'
+				},
+				mockPostData = $.parseJSON($('#js-postdata').html());
 
-			viewer.setup({
-				postTemplate: postTemplate,
-				postsToRetrieve: postsToRetrieve
-			})
+			testing.sandbox.stub(viewer, 'bootstrapPosts');
+			viewer.bootstrapPosts.returns({ then: function(){} });
+			testing.sandbox.stub(viewer, 'addPosts');
 
-			ok(viewer.setTemplate.calledOnce, '.setTemplate() called once');
-			ok(viewer.setTemplate.calledWith(postTemplate), '.setTemplate() called with the post template string');
-			ok(viewer.getPosts.calledOnce, '.getPosts() called once');
-			ok(viewer.getPosts.calledWith(postsToRetrieve), '.getPosts() called with number of posts to retrieve');
+			viewer.setup();
+
+			ok(viewer.bootstrapPosts.calledOnce, '.bootstrapPosts() called once');
+
+			viewer.bootstrapPosts.restore();
+			viewer.setup();
+
+			ok(viewer.addPosts.calledOnce, '.addPosts() called once');
+			ok(viewer.addPosts.calledWith(mockPostData), '.addPosts() called with raw post data');
+
+			viewer.setup(mockOptions);
+			deepEqual(viewer.options, mockOptions, 'options are updated appropriately');
+		});
+	});
+
+	test('When calling .listen()', function() {
+		testing.req.given(['mods/viewer'], function(viewer) {
+			viewer.listen();
+
+			strictEqual(typeof $(document).data('events')['keydown'], 'object', 'keydown event listener attached');
+			strictEqual(typeof $(document).data('events')['waypoint'], 'object', 'waypoint event listener attached');
 		});
 	});
 
@@ -89,35 +117,8 @@
 		});
 	});
 
-	test('When calling .getActivePostsRange()', function(){
-		testing.req.given(['mods/viewer'], function (viewer) {
-			var expectedRange = {
-				start: 0,
-				end: 4
-			};
-
-			viewer.options.postsShown = 4;
-			viewer.add([0,1,2,3,4,5,6,7,8]);
-			viewer.setIdx(0);
-
-			deepEqual(viewer.getActivePostsRange(), expectedRange, 'post range is correct when current item is first')
-
-			viewer.setIdx(4);
-			expectedRange.start = 2;
-			expectedRange.end = 6;
-
-			deepEqual(viewer.getActivePostsRange(), expectedRange, 'post range is correct when current item is the median')
-
-			viewer.setIdx(viewer.length - 1);
-			expectedRange.start = 6;
-			expectedRange.end = 10;
-
-			deepEqual(viewer.getActivePostsRange(), expectedRange, 'post range is correct when current item is last')
-		});
-	});
-
 	test('When calling .addPosts()', function(){
-		testing.req.given(['mods/viewer'], function (viewer) {
+		testing.req.given(['mods/postModel', 'mods/mastercontrol', 'mods/viewer'], function (PostModel, mc, viewer) {
 			var currentPage = viewer.currentPage,
 				postData = [
 				{
@@ -140,33 +141,82 @@
 				}
 			];
 
-			testing.sandbox.stub(viewer, 'getPosts', function(){ return { then: function(){} }; });
 			$('#qunit-fixture').append('<div id="js-poststream"></div>');
-			viewer.setup().addPosts(postData);
+			testing.sandbox.stub(mc, 'emit');
+			viewer.addPosts(postData);
 
 			strictEqual(viewer.collection.length, 2, 'correct number of posts are added to the collection');
 			strictEqual($('.post').length, 2, 'correct number of posts are added to the page');
-			strictEqual(viewer.currentPage, currentPage + 1, 'current page is updated appropriately');
 			viewer.each(function(post, idx){
-				strictEqual(typeof post.id, 'number', 'post model ' + post.id + ' has an "id" property');
-				strictEqual(typeof post.html, 'string', 'post model ' + post.id + ' has an "html" property');
-				ok(post.$el.jquery, 'post model ' + post.id + ' has a jquery object');
+				ok(post instanceof PostModel, 'post uses correct model type');
 			});
+			ok(mc.emit.calledWith('iscroll-newcontentadded'), '"new content added" event triggered');
 		});
 	});
 
-	test('When calling .getPosts()', function(){
+	test('When calling .getActivePostsRange()', function(){
 		testing.req.given(['mods/viewer'], function (viewer) {
-			var endPoint = viewer.options.endpoint;
+			var expectedRange = {
+				start: 0,
+				end: 4
+			};
 
-			testing.sandbox.useFakeServer();
-			testing.sandbox.server.respondWith('GET', endPoint.replace('{{page}}', viewer.currentPage), [200, { "Content-Type": "text/html" }, "<div></div>"]);
+			viewer.options.activePostCount = 4;
+			viewer.add([0,1,2,3,4,5,6,7,8]);
+			viewer.setIndex(0);
 
-			viewer.getPosts().then(function(data){
-				strictEqual(data, '<div></div>', 'post html is retreived');
-			});
+			deepEqual(viewer.getActivePostsRange(), expectedRange, 'post range is correct when current item is first')
 
-			testing.sandbox.server.respond();
+			viewer.setIndex(4);
+			expectedRange.start = 2;
+			expectedRange.end = 6;
+
+			deepEqual(viewer.getActivePostsRange(), expectedRange, 'post range is correct when current item is the median')
+
+			viewer.setIndex(viewer.length - 1);
+			expectedRange.start = 6;
+			expectedRange.end = 10;
+
+			deepEqual(viewer.getActivePostsRange(), expectedRange, 'post range is correct when current item is last')
+		});
+	});
+
+	test('When calling .trimPostsAbove()', function(){
+		testing.req.given(['mods/viewer'], function (viewer) {
+			var mockActivePostRange = { start: 0, end: 3 };
+			testing.sandbox.stub(viewer, 'getActivePostsRange');
+			viewer.getActivePostsRange.returns(mockActivePostRange);
+			testing.sandbox.stub(viewer, 'trimPosts');
+
+			viewer.trimPostsAbove();
+
+			ok(!viewer.trimPosts.called, '.trimPosts() is not called if active post range start is 0');
+
+			mockActivePostRange.start = 1;
+			viewer.trimPostsAbove();
+
+			ok(viewer.trimPosts.calledOnce, '.trimPosts() called once if active post range start is greater than 0');
+			ok(viewer.trimPosts.calledWithExactly(0, mockActivePostRange.start), '.trimPosts() receives the correct range of posts to trim');
+		});
+	});
+
+	test('When calling .trimPostsBelow()', function(){
+		testing.req.given(['mods/viewer'], function (viewer) {
+			var mockActivePostRange = { start: 0, end: 3 };
+			testing.sandbox.stub(viewer, 'getActivePostsRange');
+			viewer.getActivePostsRange.returns(mockActivePostRange);
+			testing.sandbox.stub(viewer, 'trimPosts');
+
+			viewer.length = 0;
+			viewer.trimPostsBelow();
+
+			ok(!viewer.trimPosts.called, '.trimPosts() is not called if active post range end is greater than the number of posts in the collection');
+
+			viewer.length = 5;
+			viewer.trimPostsBelow();
+
+			ok(viewer.trimPosts.calledOnce, '.trimPosts() called once if active post range end is less than the number of items in the collection');
+			ok(viewer.trimPosts.calledWithExactly(mockActivePostRange.end, viewer.length - 1), '.trimPosts() receives the correct range of posts to trim');
 		});
 	});
 </script>
@@ -178,6 +228,12 @@
 	<h2 id="qunit-userAgent"></h2>
 	<ol id="qunit-tests"></ol>
 	<div id="qunit-fixture"></div>
+
+	<script id="js-postdata" type="application/json">
+		[
+			{"id":6324208640,"url":"http://cheezburger.com/6324208640","title":"ERR LURRV KERRERTS!","body":"<p class=\"commentnow\"><a href=\"http://derp.memebase.com/tag/ermahgerd/\" target=\"_blank\">ERMAHGERD!  Moar ERMAHGERD! over here!</a></p>","asset":{"type":"image","src":"https://i.chzbgr.com/completestore/12/6/12/0gdcs0LpGEC_0vann0Nkiw2.jpg","height":640,"width":427}}
+		]
+	</script>
 	<script id="tmpl-post" type="text/x-handlebars-template">
 		<div id="js-post-{{id}}" class="post" data-aid="{{id}}">
 			<div class="post-asset">
