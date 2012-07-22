@@ -8,11 +8,11 @@ require( [ 'jquery', 'mods/mastercontrol', 'mods/appStatus', 'mods/viewer', 'mod
 
     postsrvc.setup();
 
-    fbshare.listen();
-    viewer.setup().listen();
-
     ads.setup().listen();
     adRotator.setup().listen();
+
+    fbshare.listen();
+    viewer.setup().listen();
 
     status.setup().listen();
 

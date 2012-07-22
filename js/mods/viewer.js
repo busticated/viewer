@@ -41,7 +41,7 @@ define([
 
         $.extend( v.options, cfg );
 
-        v.getPosts( v.options.postsToRetrieve ).then( v.addPosts );
+        v.bootstrapPosts().then( v.addPosts );
 
         window.viewer = v;
         return this;
@@ -94,6 +94,17 @@ define([
             });
 
         return this;
+    };
+
+    v.bootstrapPosts = function(){
+        var postData = $.parseJSON( $( '#js-postdata' ).html() );
+
+        return {
+            then: function( callback ){
+                callback( postData );
+                return this;
+            }
+        };
     };
 
     // todo:
