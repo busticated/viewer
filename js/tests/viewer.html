@@ -150,7 +150,7 @@
 			viewer.each(function(post, idx){
 				ok(post instanceof PostModel, 'post uses correct model type');
 			});
-			ok(mc.emit.calledWith('iscroll-newcontentadded'), '"new content added" event triggered');
+			ok(mc.emit.calledWith('iscroll.newcontentadded'), '"new content added" event triggered');
 		});
 	});
 
