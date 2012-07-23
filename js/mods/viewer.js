@@ -210,6 +210,11 @@ define([
         return this;
     };
 
+    // todo:
+    // + checking v.has() causes multiple requests to be made as we exceeed the
+    //   length of the collection. v.isLast() would be better but then we can't
+    //   recover from home / end jumps. maybe set v.isGettingPosts to true when
+    //   fetching and check it before calling v.getPosts()?
     v.showNextPost = function(){
         if ( ! v.has( v.index + v.options.lookAhead ) ){
             v.getPosts( v.options.postsToRetrieve ).then( v.addPosts );
