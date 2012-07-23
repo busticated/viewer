@@ -10,7 +10,7 @@ define(['jquery', 'mods/utils', 'libs/handlebars', 'mods/mastercontrol', 'libs/p
         _configs = {
             HasAsyncAds: true,
             ShowAds: true,
-            SiteName: null,
+            SiteName: 'iscrollproto',
             IsLoggedIn: false,
             SuperSitePrefix: 'ICHC'
         },
@@ -20,6 +20,10 @@ define(['jquery', 'mods/utils', 'libs/handlebars', 'mods/mastercontrol', 'libs/p
     //global GPT object
     window.googletag = window.googletag || {};
     window.googletag.cmd = window.googletag.cmd || [];
+
+    var NETWORK_CODE = '1025485'
+    var PUBLISHER_CODE = 'ca-pub-0766144451700556';
+    var SLUG = '/' + NETWORK_CODE + '/' + PUBLISHER_CODE + '/';
 
     var setup = function () {
         if ( !_configs.HasAsyncAds || !_configs.ShowAds ) {
@@ -99,16 +103,40 @@ define(['jquery', 'mods/utils', 'libs/handlebars', 'mods/mastercontrol', 'libs/p
     };
 
     var getAd = function ( type, size, id ) {
-        var adUnit = '/1025485/ca-pub-0766144451700556/' + type;
+        var initSlot = (function( type, size, id ){
+            return function(){
+                type = setUniqueSlotType( type );
+                activeSlots[ type ] = googletag.defineSlot( SLUG + type, size, id ).addService( _service );
+                requestAnimationFrame(
+                    (function( id ){
+                        return function(){
+                            googletag.display( id );
+                        };
+                    }( id ))
+                );
+            };
+        }( type, size, id ));
 
-        googletag.cmd.push(function () {
-            activeSlots[ id ] = googletag.defineSlot( adUnit, size, id ).addService( _service );
-            requestAnimationFrame(function(){
-                googletag.display( id );
-            });
-        });
+        googletag.cmd.push( initSlot );
 
         return this;
+    };
+
+    var setUniqueSlotType = function( type ){
+        var count, name;
+
+        if ( typeof activeSlots[ type ] === 'undefined' ){
+            return type;
+        }
+
+        count = +(type.replace(/.+\D/i, '')) + 1;
+        name = type.replace(/\d+$/i, '');
+
+        if ( name.charAt( name.length - 1 ) !== '_' ){
+            name = name + '_';
+        }
+
+        return setUniqueSlotType( name + count );
     };
 
     var refresh = function ( slot ) {
