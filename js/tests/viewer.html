@@ -148,7 +148,7 @@
 			strictEqual(viewer.collection.length, 2, 'correct number of posts are added to the collection');
 			strictEqual($('.post').length, 2, 'correct number of posts are added to the page');
 			viewer.each(function(post, idx){
-				ok(post instanceof PostModel, 'post uses correct model type');
+				ok(post instanceof PostModel, 'post (id:' + post.id + ') uses correct model type');
 			});
 			ok(mc.emit.calledWith('iscroll.newcontentadded'), '"new content added" event triggered');
 		});
