@@ -52,7 +52,7 @@ define(['jquery', 'mods/utils', 'libs/handlebars', 'mods/mastercontrol', 'libs/p
     };
 
     var listen = function(){
-        mc.on( 'iscroll-addsponsoredpost', function( target ){
+        mc.on( 'ads.addsponsoredpost', function( target ){
             var $spost = $( buildSponsoredPostForStream() ).appendTo( target );
             render( $spost );
         });

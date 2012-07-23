@@ -138,7 +138,7 @@ define([
                 postView = new PostView( post, idx );
 
                 if ( v.shouldAddSponsoredPost( idx ) ){
-                    mc.emit( 'iscroll-addsponsoredpost', v.options.container );
+                    mc.emit( 'ads.addsponsoredpost', v.options.container );
                 }
 
                 v.collection[ 'aid-' + post.id ] = post;
@@ -147,7 +147,7 @@ define([
             }
         });
 
-        mc.emit( 'iscroll-newcontentadded', newlyAddedPosts );
+        mc.emit( 'iscroll.newcontentadded', newlyAddedPosts );
 
         return this;
     };
@@ -231,7 +231,7 @@ define([
     v.setCurrentPage = function( direction ){
         if ( v.index && v.index % v.options.postsPerPage === 0 ){
             v.scrollState.page += direction === 'up' ? -1 : 1;
-            mc.emit( 'pageChanged', v.scrollState.page );
+            mc.emit( 'iscroll.pageChanged', v.scrollState.page );
         }
         return this;
     };
@@ -246,7 +246,7 @@ define([
     v.rotateAds = function(){
         var adIndex = v.scrollState.postsViewed += 1;
         if ( adIndex % v.options.postsPerAdRotation === 0 ){
-            mc.emit( 'rotateAds' );
+            mc.emit( 'ads.rotate' );
         }
         return this;
     };

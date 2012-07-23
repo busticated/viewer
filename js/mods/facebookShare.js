@@ -37,7 +37,7 @@ define(['jquery', 'mods/mastercontrol' ], function ( $, mc ) {
             });
         });
 
-        mc.on( 'iscroll-newcontentadded', function( postData ){
+        mc.on( 'iscroll.newcontentadded', function( postData ){
             var countsNeeded = [];
 
             $.each( postData, function( key, post ){

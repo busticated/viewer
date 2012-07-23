@@ -30,7 +30,7 @@ define( [ 'jquery', 'mods/mastercontrol', 'mods/ads', 'mods/utils' ], function( 
     };
 
     a.listen = function(){
-        mc.on( 'rotateAds', a.rotateAds );
+        mc.on( 'ads.rotate', a.rotateAds );
 
         return this;
     };
