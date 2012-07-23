@@ -79,7 +79,7 @@ define(['jquery', 'mods/mastercontrol' ], function ( $, mc ) {
             });
         });
 
-        mc.emit( 'fb-sharecounts-available', shares );
+        mc.emit( 'fbshare.countsavailable', shares );
 
         return this;
     };

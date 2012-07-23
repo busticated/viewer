@@ -46,7 +46,7 @@ define([
 
         // this should eventually catch a generic "counts-available" event
         // via mc.on( 'counts-available', { type: 'fbshare', counts: [ { id: <asset id>, count: <share count> } ] } );
-        mc.on( 'fb-sharecounts-available', function( shares ){
+        mc.on( 'fbshare.countsavailable', function( shares ){
             for ( var i = 0, l = shares.length; i < l; i += 1 ){
                 if ( typeof v.collection[ 'aid-' + shares[ i ].id ] === 'object' ){
                     v.collection[ 'aid-' + shares[ i ].id ].set( 'fbshares', shares[ i ].count );
