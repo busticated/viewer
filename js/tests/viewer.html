@@ -1,0 +1,249 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Viewer Module: Test Suite</title>
+<link rel="stylesheet" href="http://code.jquery.com/qunit/qunit-git.css" type="text/css" media="screen">
+<script src="../libs/qunit.js"></script>
+<script src="../libs/sinon.js"></script>
+<script src="../libs/require.js"></script>
+<script src="../libs/testing.js"></script>
+<script>
+	QUnit.config.testTimeout = 2000;
+
+	test('test are running in a compatible environment', function(){
+		notStrictEqual( window.location.protocol, 'file:', 'Not running tests under the "file:" protocol' );
+	});
+
+	module( 'With a new RequireJS context & sinon sandbox:', {
+		setup: function(){
+			testing.setupAndTeardown.setup({ baseUrl: '../' });
+		},
+		teardown: function(){
+			testing.setupAndTeardown.teardown();
+		}
+	});
+
+	test('confirm module methods & properties', function(){
+		testing.req.given(['mods/viewer'], function (module) {
+			var expected = {
+				index: 'number',
+				length: 'number',
+				collection: 'object',
+				options: 'object',
+				setup: 'function',
+				listen: 'function',
+				scrollState: 'object',
+				bootstrapPosts: 'function',
+				currentPage: 'number',
+				getPosts: 'function',
+				getActivePostsRange: 'function',
+				addPosts: 'function',
+				trimPostsAbove: 'function',
+				trimPostsBelow: 'function',
+				trimPosts: 'function',
+				resurrectPosts: 'function',
+				showNextPost: 'function',
+				showPreviousPost: 'function',
+				setCurrentPage: 'function',
+				getCurrentPage: 'function',
+				rotateAds: 'function',
+				shouldAddSponsoredPost: 'function'
+			};
+
+			expect(1 + Object.keys(expected).length);
+
+			strictEqual(Object.keys(module).length, Object.keys(expected).length, 'all methods have been identified' );
+
+			for (var prop in expected) {
+				strictEqual(typeof module[prop], expected[prop], 'module includes the "' + prop + '" method / property');
+			}
+		});
+	});
+
+	test('When calling .setup()', function(){
+		testing.req.given(['jquery', 'mods/viewer'], function ($, viewer) {
+			var mockOptions = {
+					container: '#js-foozle',
+					postsToRetrieve: 1,
+					postsPerPage: 2,
+					postsPerAdRotation: 3,
+					postsBeforeSponsoredPost: 4,
+					activePostCount: 5,
+					lookAhead: 6,
+					endpoint: '/path/to/salvation/'
+				},
+				mockPostData = $.parseJSON($('#js-postdata').html());
+
+			testing.sandbox.stub(viewer, 'bootstrapPosts');
+			viewer.bootstrapPosts.returns({ then: function(){} });
+			testing.sandbox.stub(viewer, 'addPosts');
+
+			viewer.setup();
+
+			ok(viewer.bootstrapPosts.calledOnce, '.bootstrapPosts() called once');
+
+			viewer.bootstrapPosts.restore();
+			viewer.setup();
+
+			ok(viewer.addPosts.calledOnce, '.addPosts() called once');
+			ok(viewer.addPosts.calledWith(mockPostData), '.addPosts() called with raw post data');
+
+			viewer.setup(mockOptions);
+			deepEqual(viewer.options, mockOptions, 'options are updated appropriately');
+		});
+	});
+
+	test('When calling .listen()', function() {
+		testing.req.given(['mods/viewer'], function(viewer) {
+			viewer.listen();
+
+			strictEqual(typeof $(document).data('events')['keydown'], 'object', 'keydown event listener attached');
+			strictEqual(typeof $(document).data('events')['waypoint'], 'object', 'waypoint event listener attached');
+		});
+	});
+
+	test('When calling .getPosts()', function(){
+		testing.req.given(['mods/viewer'], function (viewer) {
+			var endPoint = viewer.options.endpoint;
+
+			testing.sandbox.useFakeServer();
+			testing.sandbox.server.respondWith('GET', endPoint.replace('{{page}}', viewer.currentPage), [200, { "Content-Type": "text/html" }, "<div></div>"]);
+
+			viewer.getPosts().then(function(data){
+				strictEqual(data, '<div></div>', 'post html is retreived');
+			});
+
+			testing.sandbox.server.respond();
+		});
+	});
+
+	test('When calling .addPosts()', function(){
+		testing.req.given(['mods/postModel', 'mods/mastercontrol', 'mods/viewer'], function (PostModel, mc, viewer) {
+			var currentPage = viewer.currentPage,
+				postData = [
+				{
+					id: 1,
+					title: 'I am post number 1',
+					body: '',
+					asset: {
+						src: 'http://placekitten.com/580/1000',
+						type: 'image'
+					}
+				},
+				{
+					id: 2,
+					title: 'I am post number 2',
+					body: '',
+					asset: {
+						src: 'http://placekitten.com/240/500',
+						type: 'image'
+					}
+				}
+			];
+
+			$('#qunit-fixture').append('<div id="js-poststream"></div>');
+			testing.sandbox.stub(mc, 'emit');
+			viewer.addPosts(postData);
+
+			strictEqual(viewer.collection.length, 2, 'correct number of posts are added to the collection');
+			strictEqual($('.post').length, 2, 'correct number of posts are added to the page');
+			viewer.each(function(post, idx){
+				ok(post instanceof PostModel, 'post (id:' + post.id + ') uses correct model type');
+			});
+			ok(mc.emit.calledWith('iscroll.newcontentadded'), '"new content added" event triggered');
+		});
+	});
+
+	test('When calling .getActivePostsRange()', function(){
+		testing.req.given(['mods/viewer'], function (viewer) {
+			var expectedRange = {
+				start: 0,
+				end: 4
+			};
+
+			viewer.options.activePostCount = 4;
+			viewer.add([0,1,2,3,4,5,6,7,8]);
+			viewer.setIndex(0);
+
+			deepEqual(viewer.getActivePostsRange(), expectedRange, 'post range is correct when current item is first')
+
+			viewer.setIndex(4);
+			expectedRange.start = 2;
+			expectedRange.end = 6;
+
+			deepEqual(viewer.getActivePostsRange(), expectedRange, 'post range is correct when current item is the median')
+
+			viewer.setIndex(viewer.length - 1);
+			expectedRange.start = 6;
+			expectedRange.end = 10;
+
+			deepEqual(viewer.getActivePostsRange(), expectedRange, 'post range is correct when current item is last')
+		});
+	});
+
+	test('When calling .trimPostsAbove()', function(){
+		testing.req.given(['mods/viewer'], function (viewer) {
+			var mockActivePostRange = { start: 0, end: 3 };
+			testing.sandbox.stub(viewer, 'getActivePostsRange');
+			viewer.getActivePostsRange.returns(mockActivePostRange);
+			testing.sandbox.stub(viewer, 'trimPosts');
+
+			viewer.trimPostsAbove();
+
+			ok(!viewer.trimPosts.called, '.trimPosts() is not called if active post range start is 0');
+
+			mockActivePostRange.start = 1;
+			viewer.trimPostsAbove();
+
+			ok(viewer.trimPosts.calledOnce, '.trimPosts() called once if active post range start is greater than 0');
+			ok(viewer.trimPosts.calledWithExactly(0, mockActivePostRange.start), '.trimPosts() receives the correct range of posts to trim');
+		});
+	});
+
+	test('When calling .trimPostsBelow()', function(){
+		testing.req.given(['mods/viewer'], function (viewer) {
+			var mockActivePostRange = { start: 0, end: 3 };
+			testing.sandbox.stub(viewer, 'getActivePostsRange');
+			viewer.getActivePostsRange.returns(mockActivePostRange);
+			testing.sandbox.stub(viewer, 'trimPosts');
+
+			viewer.length = 0;
+			viewer.trimPostsBelow();
+
+			ok(!viewer.trimPosts.called, '.trimPosts() is not called if active post range end is greater than the number of posts in the collection');
+
+			viewer.length = 5;
+			viewer.trimPostsBelow();
+
+			ok(viewer.trimPosts.calledOnce, '.trimPosts() called once if active post range end is less than the number of items in the collection');
+			ok(viewer.trimPosts.calledWithExactly(mockActivePostRange.end, viewer.length - 1), '.trimPosts() receives the correct range of posts to trim');
+		});
+	});
+</script>
+</head>
+<body>
+	<h1 id="qunit-header">Viewer Module: Test Suite</h1>
+	<h2 id="qunit-banner"></h2>
+	<div id="qunit-testrunner-toolbar"></div>
+	<h2 id="qunit-userAgent"></h2>
+	<ol id="qunit-tests"></ol>
+	<div id="qunit-fixture"></div>
+
+	<script id="js-postdata" type="application/json">
+		[
+			{"id":6324208640,"url":"http://cheezburger.com/6324208640","title":"ERR LURRV KERRERTS!","body":"<p class=\"commentnow\"><a href=\"http://derp.memebase.com/tag/ermahgerd/\" target=\"_blank\">ERMAHGERD!  Moar ERMAHGERD! over here!</a></p>","asset":{"type":"image","src":"https://i.chzbgr.com/completestore/12/6/12/0gdcs0LpGEC_0vann0Nkiw2.jpg","height":640,"width":427}}
+		]
+	</script>
+	<script id="tmpl-post" type="text/x-handlebars-template">
+		<div id="js-post-{{id}}" class="post" data-aid="{{id}}">
+			<div class="post-asset">
+				<img src="{{asset.src}}">
+			</div>
+			<div class="post-description">
+				<h2>{{title}}</h2>
+				{{body}}
+			</div>
+		</div>
+	</script>
+</body>
+</html>

@@ -1,217 +1,267 @@
 /* global define: false, require: false */
 
-define( [ 'jquery', 'handlebars', 'libs/Iterator', 'libs/polyfills', 'libs/waypoints' ], function( $, Handlebars, Iterator ){
+define([
+        'jquery',
+        'libs/handlebars',
+        'libs/iterator',
+        'mods/mastercontrol',
+        'mods/postModel',
+        'mods/postView',
+        'libs/waypoints'
+    ],
+    function( $, Handlebars, Iterator, mc, PostModel, PostView ){
     'use strict';
 
-    var wasSetup = false,
-        wasKeyedEvent = false,
-        tmpl;
+    var tmpl;
 
-    var v = Object.create( new Iterator() );
+    var v = new Iterator();
 
     v.options = {
         container: '#js-poststream',
-        isLoadingClass: '.is-loading',
-        isClearedClass: '.is-cleared',
-        postsShown: 7,
-        eventNamespace: '.viewer',
-        nextEvent: 'next',
-        prevEvent: 'prev',
-        loadingEvent: 'loading',
-        postTemplate: null
+        postsToRetrieve: 10,
+        postsPerPage: 7,
+        postsPerAdRotation: 3,
+        postsBeforeSponsoredPost: 3,
+        activePostCount: 7,
+        lookAhead: 5,
+        endpoint: '/posts/page/{{page}}/' // should be '/posts/{{count}}'
+    };
+
+    v.scrollState = {
+        page: 1,
+        postsViewed: 0
     };
 
     v.setup = function( cfg ){
-        if ( wasSetup ){
-            return this;
-        }
-
         $.extend( v.options, cfg );
 
-        if ( ! v.options.postTemplate ){
-            v.options.postTemplate = $( '#tmpl-post' ).html();
-        }
+        v.bootstrapPosts().then( v.addPosts );
 
-        tmpl = v.setTemplate( v.options.postTemplate );
-
-        v.getPosts( v.options.postsShown, function( postData ) {
-            v.addPosts( postData );
-        });
-
+        window.viewer = v;
         return this;
     };
 
     v.listen = function(){
+        var timerId = null;
+
+        // this should eventually catch a generic "counts-available" event
+        // via mc.on( 'counts-available', { type: 'fbshare', counts: [ { id: <asset id>, count: <share count> } ] } );
+        mc.on( 'fbshare.countsavailable', function( shares ){
+            for ( var i = 0, l = shares.length; i < l; i += 1 ){
+                if ( typeof v.collection[ 'aid-' + shares[ i ].id ] === 'object' ){
+                    v.collection[ 'aid-' + shares[ i ].id ].set( 'fbshares', shares[ i ].count );
+                }
+            }
+        });
+
         $( document )
             .on( 'keydown', function( e ){
-                wasKeyedEvent = true;
                 switch ( e.keyCode ){
                     // Next: 74 = j, 40 = down arrow
                     case 40:
                     case 74:
                         e.preventDefault();
-                        v.showNextPost();
-                        v.setScrollPosition();
+                        v.hasNext() && v.getNext().emit( 'selected', 1 );
                         break;
 
                     // Prev: 75 = k, 38 = up arrow
                     case 38:
                     case 75:
                         e.preventDefault();
-                        v.showPreviousPost();
-                        v.setScrollPosition();
+                        v.hasPrev() && v.getPrev().emit( 'selected', -1 );
                         break;
                 }
             })
             .on( 'waypoint.reached', function( e, direction ){
-                if ( wasKeyedEvent ){
-                    wasKeyedEvent = false;
-                    return;
-                }
+                v.setIndex( $( e.target ).data( 'postIndex' ) );
 
-                v.setIdx( $( e.target ).data( 'postIdx' ) );
+                timerId && cancelAnimationFrame( timerId );
+                timerId = requestAnimationFrame(function(){
+                    if ( direction === 'up' ){
+                        v.showPreviousPost();
+                    } else {
+                        v.showNextPost();
+                    }
+                });
 
-                if ( direction === 'up' ){
-                    v.showPreviousPost();
-                } else {
-                    v.showNextPost();
-                }
+                v.setCurrentPage( direction ).rotateAds();
             });
+
+        return this;
     };
 
-    //this will be move into postmodel.js module
-    v.makePost = function( count ){
-        v.makePost.id = v.makePost.id + 1 || 1;
-        var id = v.makePost.id,
-            title = 'I am post number ' + id,
-            body = (function(){
-                var lorem = [
-                    'Lorem Ipsum is simply dummy text of the printing and typesetting industry.',
-                    'Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.',
-                    'It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.',
-                    'It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.',
-                    'Contrary to popular belief, Lorem Ipsum is not simply random text.',
-                    'It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old.',
-                    'Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source.',
-                    'Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The Extremes of Good and Evil) by Cicero, written in 45 BC.',
-                    'This book is a treatise on the theory of ethics, very popular during the Renaissance.',
-                    'The first line of Lorem Ipsum, "Lorem ipsum dolor sit amet..", comes from a line in section 1.10.32.'
-                ];
-
-                var lines = lorem.slice( 0, v.makePost.random( 0, lorem.length - 1 ) );
-
-                return lines.join( ' ' );
-            })(),
-            imageSrc = 'http://placekitten.com/580/' + ( v.makePost.random( 2, 12 ) * 100 );
+    v.bootstrapPosts = function(){
+        var postData = $.parseJSON( $( '#js-postdata' ).html() );
 
         return {
-            id: id,
-            title: title,
-            body: body,
-            asset: {
-                type: 'image',
-                src: imageSrc
+            then: function( callback ){
+                callback( postData );
+                return this;
             }
         };
     };
 
-    v.makePost.random = function ( from, to ){
-        return Math.floor( Math.random() * ( to - from + 1 ) + from );
-    };
+    // todo:
+    // + need a more reliable way to track & handle failed page loads
+    v.currentPage = 1;
+    v.getPosts = function( count ){
+        var deferred = $.Deferred(),
+            xhr = $.ajax({
+                url: v.options.endpoint.replace( '{{page}}', v.currentPage ),
+                success: deferred.resolve
+            });
 
-    v.getPosts = function( count, callback ){
-        setTimeout( function(){
-            var postData = [];
+        v.currentPage += 1;
 
-            while ( count > 0 ){
-                postData.push( v.makePost() );
-                count -= 1;
-            }
-
-            callback( postData );
-        } , 500 );
+        return deferred.promise();
     };
 
     // todo:
-    // + break this into "addOldPosts" & "addNewPosts" methods (or some such)
-    // + figure out how to detect whether posts get added to the start (old posts) or end (new posts)
-    // + there's probably a nicer way of iterating over only the newly added posts
-    v.addPosts = function( postData ){
-        var insertFrom =  v.length,
-            posts = [];
+    // + break into addPosts & displayPosts methods so that we can grab lots of posts
+    //   at once but only display some subset of the collection we retreive
+    // + if we don't know asset dimensions and set waypoint before asset loads,
+    //   the waypoint's offset will be inaccurate - perhaps use
+    //   post.$el.one( 'load', function(){ post.$el.waypoint() );
+    //   but need to set in a closure.. or maybe just call $.waypoints( 'refresh' )
+    //   at some appropriate time in the future?
+    // + extract the .each() callback into a stand-alone method
+    v.addPosts = function( rawPosts ){
+        var insertFrom = v.length,
+            newlyAddedPosts = [],
+            post,
+            postView;
 
-        $.each( postData, function( idx, post ){
-            var postHtml = tmpl( post );
-            posts.push( $( postHtml ).data( 'postHtml', postHtml ) );
-        });
-
-        v.add( posts, insertFrom );
-
-        v.each( function( post, idx ){
+        v.add( rawPosts, insertFrom );
+        v.each( function( rawPost, idx ){
             if ( idx >= insertFrom ){
-                post.data( 'postIdx', idx ).appendTo( '#js-poststream' ).waypoint();
+                post = new PostModel( rawPost );
+                postView = new PostView( post, idx );
+
+                if ( v.shouldAddSponsoredPost( idx ) ){
+                    mc.emit( 'ads.addsponsoredpost', v.options.container );
+                }
+
+                v.collection[ 'aid-' + post.id ] = post;
+                v.update( idx, post );
+                newlyAddedPosts.push( post );
             }
         });
+
+        mc.emit( 'iscroll.newcontentadded', newlyAddedPosts );
+
+        return this;
     };
 
-    v.removePosts = function(){
-        var $oldPosts = $( '.post' ).slice( 0, v.idx - v.options.postsShown );
+    v.getActivePostsRange = function(){
+        var count = Math.round( v.options.activePostCount / 2 );
 
-        $oldPosts.each(function( idx, elem ){
-            var $el = $( elem );
+        if ( v.index - count <= 0 ){
+            return {
+                start: 0,
+                end: v.options.activePostCount
+            };
+        }
 
-            $el.css( 'height', $el.outerHeight() + 'px' );
-            $el.addClass( v.options.isClearedClass.replace( '.', '' ) );
-            $el.empty();
+        return {
+            start: v.index - count,
+            end: v.index + count
+        };
+    };
+
+    v.trimPostsAbove = function(){
+        var activePosts = v.getActivePostsRange();
+
+        if ( activePosts.start > 0 ){
+            v.trimPosts( 0, activePosts.start );
+        }
+
+        return this;
+    };
+
+    v.trimPostsBelow = function(){
+        var activePosts = v.getActivePostsRange();
+
+        if ( v.length - activePosts.end > 0 ){
+            v.trimPosts( activePosts.end, v.length - 1 );
+        }
+
+        return this;
+    };
+
+    v.trimPosts = function( from, to ){
+        v.each(function( post, idx ){
+            if ( idx >= from && idx <= to && post.isActive ){
+                post.set( 'isActive', false );
+            }
         });
+
+        return this;
     };
 
     v.resurrectPosts = function(){
-        var $clearedPostSlots = $( v.options.isClearedClass ).slice( v.idx - v.options.postsShown, v.idx ),
-            posts = v.collection.slice( v.idx - v.options.postsShown, v.idx );
+        var activePosts = v.getActivePostsRange();
 
-        $clearedPostSlots.each(function( idx, elem ){
-            var $el = $( elem ),
-                $post = $( posts[ idx ].data( 'postHtml' ) );
-            $el.html( $post.html() );
-            $el.removeClass( v.options.isClearedClass.replace( '.', '' ) );
+        v.each(function( post, idx ){
+            if ( idx >= activePosts.start && idx < activePosts.end && ! post.isActive ){
+                post.set( 'isActive', true );
+            }
         });
+
+        return this;
     };
 
+    // todo:
+    // + checking v.has() causes multiple requests to be made as we exceeed the
+    //   length of the collection. v.isLast() would be better but then we can't
+    //   recover from home / end jumps. maybe set v.isGettingPosts to true when
+    //   fetching and check it before calling v.getPosts()?
     v.showNextPost = function(){
-        v.next();
-
-        if ( v.isLast( v.idx + 3 ) ){
-            v.getPosts( v.options.postsShown, v.addPosts );
+        if ( ! v.has( v.index + v.options.lookAhead ) ){
+            v.getPosts( v.options.postsToRetrieve ).then( v.addPosts );
         }
 
-        if ( v.idx % ( v.options.postsShown * 3 ) === 0 ){
-            v.removePosts( v.options.postsShown );
-        }
+        v.resurrectPosts();
+        v.trimPostsAbove();
+
+        return this;
     };
 
     v.showPreviousPost = function(){
-        if ( v.isFirst() ){
-            return;
+        v.resurrectPosts();
+        v.trimPostsBelow();
+
+        return this;
+    };
+
+    v.setCurrentPage = function( direction ){
+        if ( v.index && v.index % v.options.postsPerPage === 0 ){
+            v.scrollState.page += direction === 'up' ? -1 : 1;
+            mc.emit( 'iscroll.pageChanged', v.scrollState.page );
+        }
+        return this;
+    };
+
+    v.getCurrentPage = function(){
+        return v.scrollState.page;
+    };
+
+    // todo:
+    // + waypoints fire twice when scrolling up(?) causing
+    //   the index to increment inaccurately
+    v.rotateAds = function(){
+        var adIndex = v.scrollState.postsViewed += 1;
+        if ( adIndex % v.options.postsPerAdRotation === 0 ){
+            mc.emit( 'ads.rotate' );
+        }
+        return this;
+    };
+
+    v.shouldAddSponsoredPost = function( index ){
+        if ( v.scrollState.postsViewed === 0 ){
+            return index === v.options.postsBeforeSponsoredPost - 1;
         }
 
-        v.prev();
-
-        if ( v.has( v.idx - v.options.postsShown ) && v.get( v.idx - v.options.postsShown ).hasClass( v.options.isClearedClass.replace( '.', '' ) ) ){
-            v.resurrectPosts();
-        }
-    };
-
-    v.setScrollPosition = function(){
-        $( document ).scrollTop( v.current().offset().top );
-    };
-
-    v.setTemplate = function( template ){
-        return Handlebars.compile( template );
-    };
-
-    v.getTemplate = function(){
-        return tmpl;
+        return ( index - v.options.postsBeforeSponsoredPost + 1 ) % v.options.postsPerPage === 0;
     };
 
     return v;

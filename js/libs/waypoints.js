@@ -1,5 +1,5 @@
 /*!
-jQuery Waypoints - v1.1.6
+jQuery Waypoints - v1.1.7
 Copyright (c) 2011-2012 Caleb Troughton
 Dual licensed under the MIT license and GPL license.
 https://github.com/imakewebthings/jquery-waypoints/blob/master/MIT-license.txt
@@ -14,6 +14,8 @@ GitHub Repository: https://github.com/imakewebthings/jquery-waypoints
 Documentation and Examples: http://imakewebthings.github.com/jquery-waypoints
 
 Changelog:
+	v1.1.7
+		- Actually fix the post-load bug in Issue #28 from v1.1.3.
 	v1.1.6
 		- Fix potential memory leak by unbinding events on empty context elements.
 	v1.1.5
@@ -25,7 +27,7 @@ Changelog:
 		  immediately. (Issue #28)
 	v1.1.2
 		- Fixed error thrown by waypoints with triggerOnce option that were
-			triggered via resize refresh.
+		  triggered via resize refresh.
 	v1.1.1
 		- Fixed bug in initialization where all offsets were being calculated
 		  as if set to 0 initially, causing unwarranted triggers during the
@@ -65,7 +67,6 @@ Support:
         factory( root.jQuery, wp, wps, root );
     }
 })( this, 'waypoint', 'waypoints', function ( $, wp, wps, window, undefined ) {
-
 	'$:nomunge';
 	
 	var $w = $(window),
@@ -232,7 +233,7 @@ Support:
 		This is how you register an element as a waypoint. When the user scrolls past
 		that element it triggers waypoint.reached, a custom event. Since the
 		parameters for creating a waypoint are optional, we have a few different
-		possible signatures. Letâ€™s look at each of them.
+		possible signatures. Let’s look at each of them.
 
 		someElements.waypoint();
 			
@@ -242,7 +243,7 @@ Support:
 		bind to the event yourself, as with any other event, like so:
 
 		someElements.bind('waypoint.reached', function(event, direction) {
-			// make it rain
+		   // make it rain
 		});
 			
 		You will usually want to create a waypoint and immediately bind a function to
@@ -250,12 +251,12 @@ Support:
 		.waypoint:
 
 		someElements.waypoint(function(event, direction) {
-			if (direction === 'down') {
-				// do this on the way down
-			}
-			else {
-				// do this on the way back up through the waypoint
-			}
+		   if (direction === 'down') {
+		      // do this on the way down
+		   }
+		   else {
+		      // do this on the way back up through the waypoint
+		   }
 		});
 			
 		This will still use the default options, which will trigger the waypoint when
@@ -263,15 +264,15 @@ Support:
 		options object to customize things:
 
 		someElements.waypoint(function(event, direction) {
-			// do something amazing
+		   // do something amazing
 		}, {
-			offset: '50%'  // middle of the page
+		   offset: '50%'  // middle of the page
 		});
 			
 		You can also pass just an options object.
 
 		someElements.waypoint({
-			offset: 100  // 100px from the top
+		   offset: 100  // 100px from the top
 		});
 			
 		This behaves like .waypoint(), in that it registers the elements as waypoints
@@ -393,9 +394,9 @@ Support:
 		/*
 		jQuery.waypoints('refresh')
 		
-		This will force a recalculation of each waypointâ€™s trigger point based on
+		This will force a recalculation of each waypoint’s trigger point based on
 		its offset option and context. This is called automatically whenever the window
-		(or other defined context) is resized, new waypoints are added, or a waypointâ€™s
+		(or other defined context) is resized, new waypoints are added, or a waypoint’s
 		options are modified. If your project is changing the DOM or page layout without
 		doing one of these things, you may want to manually call this refresh.
 		*/
@@ -439,7 +440,7 @@ Support:
 					optional flag.
 					*/
 					if (o.options.onlyOnScroll) return;
-					
+
 					if (oldOffset !== null && c.oldScroll > oldOffset && c.oldScroll <= o.offset) {
 						triggerWaypoint(o, ['up']);
 					}
@@ -481,7 +482,7 @@ Support:
 
 		$('.post').waypoint();
 		$('.ad-unit').waypoint(function(event, direction) {
-			// Passed an ad unit
+		   // Passed an ad unit
 		});
 		console.log($.waypoints());
 		
@@ -578,7 +579,7 @@ Support:
 
 	// The bottom of the element is in view
 	offset: function() {
-		return $.waypoints('viewportHeight') - $(this).outerHeight();
+	   return $.waypoints('viewportHeight') - $(this).outerHeight();
 	}
 	
 	Offset can take a function, which must return a number of pixels from the top of
@@ -603,7 +604,7 @@ Support:
 	the nearest ancestor that matches this selector.
 	
 	$('.something-scrollable .waypoint').waypoint({
-		context: '.something-scrollable'
+	   context: '.something-scrollable'
 	});
 	
 	You can see this in action on the Dial Controls example.
@@ -612,15 +613,15 @@ Support:
 	creating a waypoint.  In place of:
 	
 	$('.item').waypoint(function(event, direction) {
-		// make things happen
+	   // make things happen
 	});
 	
 	You may instead write:
 	
 	$('.item').waypoint({
-		handler: function(event, direction) {
-			// make things happen
-		}
+	   handler: function(event, direction) {
+	      // make things happen
+	   }
 	});
 	
 	*/
@@ -651,14 +652,14 @@ Support:
 	/*
 	$.waypoints.settings
 	
-	Settings object that determines some of the pluginâ€™s behavior.
+	Settings object that determines some of the plugin’s behavior.
 		
 	resizeThrottle
 		number
 		default: 200
 		For performance reasons, the refresh performed during resizes is
 		throttled. This value is the rate-limit in milliseconds between resize
-		refreshes. For more information on throttling, check out Ben Almanâ€™s
+		refreshes. For more information on throttling, check out Ben Alman’s
 		throttle / debounce plugin.
 		http://benalman.com/projects/jquery-throttle-debounce-plugin/
 		
@@ -668,7 +669,7 @@ Support:
 		For performance reasons, checking for any crossed waypoints during a
 		scroll event is throttled. This value is the rate-limit in milliseconds
 		between scroll checks. For more information on throttling, check out Ben
-		Almanâ€™s throttle / debounce plugin.
+		Alman’s throttle / debounce plugin.
 		http://benalman.com/projects/jquery-throttle-debounce-plugin/
 	*/
 	$[wps].settings = {

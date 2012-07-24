@@ -68,7 +68,6 @@ sub {
   bottom: -0.25em;
 }
 img {
-  height: auto;
   border: 0;
   -ms-interpolation-mode: bicubic;
   vertical-align: middle;
@@ -178,6 +177,87 @@ h2 {
 .post-asset img {
   width: 100%;
 }
+.status-wrap {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  width: 12%;
+  margin-left: -6%;
+  opacity: 0;
+  -webkit-transition: all 0.5s;
+  -moz-transition: all 0.5s;
+  -ms-transition: all 0.5s;
+  -o-transition: all 0.5s;
+  transition: all 0.5s;
+}
+.status-wrap.is-visible {
+  opacity: 1.0;
+}
+.status {
+  padding: 5px;
+  color: #fff;
+  text-align: center;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+  background-color: #0e90d2;
+  background-image: -moz-linear-gradient(top, #149bdf, #0480be);
+  background-image: -ms-linear-gradient(top, #149bdf, #0480be);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#149bdf), to(#0480be));
+  background-image: -webkit-linear-gradient(top, #149bdf, #0480be);
+  background-image: -o-linear-gradient(top, #149bdf, #0480be);
+  background-image: linear-gradient(top, #149bdf, #0480be);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#149bdf', endColorstr='#0480be', GradientType=0);
+  -webkit-box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+  -moz-box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+  -webkit-border-radius: 0 0 5px 5px;
+  -moz-border-radius: 0 0 5px 5px;
+  border-radius: 0 0 5px 5px;
+}
+.status-info {
+  background-color: #4bb1cf;
+  background-image: -moz-linear-gradient(top, #5bc0de, #339bb9);
+  background-image: -ms-linear-gradient(top, #5bc0de, #339bb9);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#5bc0de), to(#339bb9));
+  background-image: -webkit-linear-gradient(top, #5bc0de, #339bb9);
+  background-image: -o-linear-gradient(top, #5bc0de, #339bb9);
+  background-image: linear-gradient(top, #5bc0de, #339bb9);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#5bc0de', endColorstr='#339bb9', GradientType=0);
+}
+.status-ok {
+  background-color: #5eb95e;
+  background-image: -moz-linear-gradient(top, #62c462, #57a957);
+  background-image: -ms-linear-gradient(top, #62c462, #57a957);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#62c462), to(#57a957));
+  background-image: -webkit-linear-gradient(top, #62c462, #57a957);
+  background-image: -o-linear-gradient(top, #62c462, #57a957);
+  background-image: linear-gradient(top, #62c462, #57a957);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#62c462', endColorstr='#57a957', GradientType=0);
+}
+.status-warning {
+  background-color: #fd7c43;
+  background-image: -moz-linear-gradient(top, #fe9161, #fd5c15);
+  background-image: -ms-linear-gradient(top, #fe9161, #fd5c15);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#fe9161), to(#fd5c15));
+  background-image: -webkit-linear-gradient(top, #fe9161, #fd5c15);
+  background-image: -o-linear-gradient(top, #fe9161, #fd5c15);
+  background-image: linear-gradient(top, #fe9161, #fd5c15);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fe9161', endColorstr='#fd5c15', GradientType=0);
+}
+.status-alert {
+  background-color: #dd514c;
+  background-image: -moz-linear-gradient(top, #ee5f5b, #c43c35);
+  background-image: -ms-linear-gradient(top, #ee5f5b, #c43c35);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#ee5f5b), to(#c43c35));
+  background-image: -webkit-linear-gradient(top, #ee5f5b, #c43c35);
+  background-image: -o-linear-gradient(top, #ee5f5b, #c43c35);
+  background-image: linear-gradient(top, #ee5f5b, #c43c35);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ee5f5b', endColorstr='#c43c35', GradientType=0);
+}
 /*
 	is-<foo> where foo is some state. states should only be used in conjunction with another class (e.g. ".nav-item.is-active")
 	- -
@@ -198,6 +278,41 @@ h2 {
 	.is-valid
 	.is-invalid
 */
+.ad-container.ad-rotator {
+  position: fixed;
+  width: 960px;
+}
+.ad-group {
+  margin-top: 9999px;
+  visibility: hidden;
+}
+.ad-group.is-visible {
+  margin-top: 0;
+  visibility: visible;
+}
+.ad-group.ad-group-b {
+  margin-top: -9999px;
+}
+.ad {
+  position: relative;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+.ad-left,
+.ad-right {
+  position: absolute;
+}
+.ad-skyscraper {
+  width: 160px;
+  height: 600px;
+}
+.ad-skyscraper.ad-left {
+  right: 980px;
+}
+.ad-skyscraper.ad-right {
+  left: 980px;
+}
 @-webkit-keyframes bounce {
   0% {
     -webkit-transform: translatey(0px);

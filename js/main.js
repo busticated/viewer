@@ -1,11 +1,20 @@
 require.config({
     paths : {
-        'jquery': 'libs/jquery',
-        'handlebars': 'libs/handlebars-1.0.0.beta.6'
+        'jquery': 'libs/jquery'
     }
 });
-require( [ 'jquery', 'mods/viewer' ], function( $, viewer ){
+require( [ 'jquery', 'mods/mastercontrol', 'mods/appStatus', 'mods/viewer', 'mods/postservice', 'mods/ads', 'mods/ads-rotator', 'mods/facebookShare', 'mods/performance-scroll' ], function( $, mc, status, viewer, postsrvc, ads, adRotator, fbshare ){
     'use strict';
 
+    postsrvc.setup();
+
+    ads.setup().listen();
+    adRotator.setup().listen();
+
+    fbshare.listen();
     viewer.setup().listen();
+
+    status.setup().listen();
+
+    mc.emit( 'app-initialized' );
 });

@@ -17,4 +17,37 @@
             return new F();
         };
     }
+
+    // requestAnimationFrame()
+    (function ( win ) {
+        "use strict";
+
+        var lastTime = 0,
+            vendors = [ 'ms', 'moz', 'webkit', 'o' ],
+            nameSpaceSuffix = 'AnimationFrame',
+            vendor;
+
+        for ( var x = 0; x < vendors.length && ! win.requestAnimationFrame; x += 1 ) {
+            vendor = vendors[x];
+            win.requestAnimationFrame = win[ vendor + 'Request' + nameSpaceSuffix ];
+            win.cancelAnimationFrame = win[ vendor + 'Cancel' + nameSpaceSuffix ]  || win[ vendor + 'CancelRequest' + nameSpaceSuffix ];
+        }
+
+        if ( ! win.requestAnimationFrame ) {
+            win.requestAnimationFrame = function( callback, element ) {
+                var currTime = new Date().getTime(),
+                    timeToCall = Math.max( 0, 16 - ( currTime - lastTime ) ),
+                    id = win.setTimeout( function () { callback( currTime + timeToCall ); }, timeToCall );
+
+                lastTime = currTime + timeToCall;
+                return id;
+            };
+        }
+
+        if ( ! win.cancelAnimationFrame ) {
+            win.cancelAnimationFrame = function( id ) {
+                win.clearTimeout( id );
+            };
+        }
+    }(window));
 });
