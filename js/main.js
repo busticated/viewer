@@ -3,7 +3,7 @@ require.config({
         'jquery': 'libs/jquery'
     }
 });
-require( [ 'jquery', 'mods/mastercontrol', 'mods/appStatus', 'mods/viewer', 'mods/postservice', 'mods/ads', 'mods/ads-rotator', 'mods/facebookShare' ], function( $, mc, status, viewer, postsrvc, ads, adRotator, fbshare ){
+require( [ 'jquery', 'mods/mastercontrol', 'mods/appStatus', 'mods/viewer', 'mods/postservice', 'mods/ads', 'mods/ads-rotator', 'mods/facebookShare', 'mods/performance-scroll' ], function( $, mc, status, viewer, postsrvc, ads, adRotator, fbshare ){
     'use strict';
 
     postsrvc.setup();
