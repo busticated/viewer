@@ -33,10 +33,10 @@ define(['jquery', 'mods/utils', 'libs/handlebars', 'mods/mastercontrol', 'libs/p
         googletag.cmd.push(function () {
             _service = googletag.pubads();
             _service
-            .setTargeting( 'site', getSiteForTargeting() )
-            .setTargeting( 'page', getPageForTargeting() )
-            .setTargeting( 'registered', getRegisteredState() )
-            .collapseEmptyDivs();
+                .setTargeting( 'site', getSiteForTargeting() )
+                .setTargeting( 'page', getPageForTargeting() )
+                .setTargeting( 'registered', getRegisteredState() )
+                .collapseEmptyDivs();
 
             //if ( ! _configs.HasIScroll ) {
             //_service.enableSingleRequest();

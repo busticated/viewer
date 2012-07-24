@@ -14,8 +14,8 @@ define( [ 'jquery', 'mods/mastercontrol', 'mods/ads', 'mods/utils' ], function( 
                     '<div id="ad-02" class="js-ad ad ad-right ad-skyscraper" data-adtype="ICHCTEST_160_RIGHT_BTFISCROLL_ROS" data-adsize="[[160, 600],[300,600]]"></div>',
                 '</div>',
                 '<div id="js-adgroup-02" class="ad-group ad-group-b">',
-                    '<div id="ad-03" class="js-ad ad ad-left ad-skyscraper" data-adtype="ICHCTEST_160_LEFT_BTFISCROLL_ROS" data-adsize="[[160, 600],[300,600]]"></div>',
-                    '<div id="ad-04" class="js-ad ad ad-right ad-skyscraper" data-adtype="ICHCTEST_160_RIGHT_BTFISCROLL_ROS" data-adsize="[[160, 600],[300,600]]"></div>',
+                    '<div id="ad-03" class="js-ad ad ad-left ad-skyscraper" data-adtype="ICHCTEST_160_LEFT_BTFISCROLL_ROS_0" data-adsize="[[160, 600],[300,600]]"></div>',
+                    '<div id="ad-04" class="js-ad ad ad-right ad-skyscraper" data-adtype="ICHCTEST_160_RIGHT_BTFISCROLL_ROS_0" data-adsize="[[160, 600],[300,600]]"></div>',
                 '</div>',
             '</div>'
         ].join( '' ),
