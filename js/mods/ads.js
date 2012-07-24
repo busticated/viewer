@@ -118,8 +118,7 @@ define(['jquery', 'mods/utils', 'libs/handlebars', 'mods/mastercontrol', 'libs/p
     var getAd = function ( type, size, id ) {
         var initSlot = (function( type, size, id ){
             return function(){
-                type = setUniqueSlotType( type );
-                activeSlots[ type ] = googletag.defineSlot( SLUG + type, size, id ).addService( _service );
+                activeSlots[ id ] = googletag.defineSlot( SLUG + type, size, id ).addService( _service );
                 requestAnimationFrame(
                     (function( id ){
                         return function(){
@@ -135,30 +134,13 @@ define(['jquery', 'mods/utils', 'libs/handlebars', 'mods/mastercontrol', 'libs/p
         return this;
     };
 
-    var setUniqueSlotType = function( type ){
-        var count, name;
-
-        if ( typeof activeSlots[ type ] === 'undefined' ){
-            return type;
-        }
-
-        count = +(type.replace(/.+\D/i, '')) + 1;
-        name = type.replace(/\d+$/i, '');
-
-        if ( name.charAt( name.length - 1 ) !== '_' ){
-            name = name + '_';
-        }
-
-        return setUniqueSlotType( name + count );
-    };
-
     var refresh = function ( $scope ) {
         var slots = getAdSlots( $scope ),
             ads = [],
             doRefresh;
 
         for ( var i = 0, l = slots.length; i < l; i += 1 ){
-            ads.push( activeSlots[ slots[ i ].type ] );
+            ads.push( activeSlots[ slots[ i ].id ] );
         }
 
         doRefresh = (function( targetSlots ){
