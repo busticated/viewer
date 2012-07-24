@@ -65,18 +65,11 @@ define(['jquery', 'mods/utils', 'libs/handlebars', 'mods/mastercontrol', 'libs/p
     };
 
     var render = function ( $scope ) {
-        var $ads = $( 'div.js-ad', $scope || document ),
-            type, size, id;
+        var slots = getAdSlots( $scope );
 
-        $ads.each(function () {
-            var $this = $( this );
-
-            type = $this.data( 'adtype' );
-            size = $this.data( 'adsize' );
-            id = $this.attr( 'id' );
-
-            getAd( type, size, id );
-        });
+        for ( var i = 0, l = slots.length; i < l; i += 1 ){
+            getAd( slots[ i ].type, slots[ i ].size, slots[ i ].id );
+        }
 
         return this;
     };
@@ -102,6 +95,26 @@ define(['jquery', 'mods/utils', 'libs/handlebars', 'mods/mastercontrol', 'libs/p
         return ( _configs.IsLoggedIn ? '1' : '0' );
     };
 
+    var getAdSlots = function( $scope ){
+        var $ads = $( 'div.js-ad', $scope || document ),
+            adSlots = [],
+            $ad;
+
+        $ads.each(function ( idx, item ) {
+            $ad = $( item );
+
+            adSlots.push({
+                id: $ad.attr( 'id' ),
+                type: $ad.data( 'adtype' ),
+                size: $ad.data( 'adsize' )
+            });
+        });
+
+        return adSlots;
+    };
+
+    // todo:
+    // + rename method to .fetchAd()
     var getAd = function ( type, size, id ) {
         var initSlot = (function( type, size, id ){
             return function(){
@@ -139,10 +152,22 @@ define(['jquery', 'mods/utils', 'libs/handlebars', 'mods/mastercontrol', 'libs/p
         return setUniqueSlotType( name + count );
     };
 
-    var refresh = function ( slot ) {
-        googletag.cmd.push(function() {
-            _service.refresh( slot ); //if slot is undefined, all ads on page are refreshed
-        });
+    var refresh = function ( $scope ) {
+        var slots = getAdSlots( $scope ),
+            ads = [],
+            doRefresh;
+
+        for ( var i = 0, l = slots.length; i < l; i += 1 ){
+            ads.push( activeSlots[ slots[ i ].type ] );
+        }
+
+        doRefresh = (function( targetSlots ){
+            return function(){
+                _service.refresh( targetSlots );
+            }
+        }( ads ));
+
+        googletag.cmd.push( doRefresh );
 
         return this;
     };
@@ -218,6 +243,7 @@ define(['jquery', 'mods/utils', 'libs/handlebars', 'mods/mastercontrol', 'libs/p
         render: render,
         getSiteForTargeting: getSiteForTargeting,
         getPageForTargeting: getPageForTargeting,
+        getAdSlots: getAdSlots,
         getAd: getAd,
         activeSlots: activeSlots,
         refresh: refresh,

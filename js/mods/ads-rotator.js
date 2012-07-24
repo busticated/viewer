@@ -36,24 +36,14 @@ define( [ 'jquery', 'mods/mastercontrol', 'mods/ads', 'mods/utils' ], function( 
     };
 
     a.rotateAds = function(){
+        var $scope;
+
         a.rotateAds.__timer && clearTimeout( a.rotateAds.__timer );
 
         a.rotateAds.__timer = setTimeout(function(){
-            $( '#js-adgroup-01, #js-adgroup-02' ).toggleClass( 'is-visible' );
-            a.refreshAds();
+            $scope = $( '#js-adgroup-01, #js-adgroup-02' ).toggleClass( 'is-visible' ).not( '.is-visible' );
+            ads.refresh( $scope );
         }, a.options.debounceBy );
-
-        return this;
-    };
-
-    a.refreshAds = function(){
-        var $scope = $( '#js-adgroup-01:not(.is-visible), #js-adgroup-02:not(.is-visible)' );
-
-        $scope.find( '.js-ad' ).empty().each(function( idx, slot ){
-            $( slot ).attr( 'id', 'ad-' + utils.makeGUID() );
-        });
-
-        ads.render( $scope );
 
         return this;
     };
