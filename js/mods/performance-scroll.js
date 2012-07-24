@@ -1,6 +1,6 @@
 /* jshint */
 /*global define: false, require: false */
-define(['jquery', 'mods/ono-config'], function ($, config) {
+define(['jquery'], function ($) {
     'use strict';
     
     var timeoutIntervalMS = 15; 
@@ -19,27 +19,26 @@ define(['jquery', 'mods/ono-config'], function ($, config) {
         
         var self = this;
 
-        if (config.getConfig().EnableScrollPerformanceLogging) {
-            $(window).scroll(function() {
-                self.lastScrolled = self.now();
-                if (!self.isCollectingScrollLatency) {
-                    self.isCollectingScrollLatency = true;
-                    self.lastRanScrollLatencyCollection = self.now();
-                    setTimeout(function() {
-                        $.each(self._listeners, function(index,listener){ listener.onStart();});
-                        self.collectScrollLatency();
-                    }, timeoutIntervalMS);
-                }
-            });
-            
-            self.addListener({
-                onStart: function () { self.resetScrollLatency(); },
-                onLatencyObserved: function (value) { self.setScrollLatency(value); },
-                onFinish: function () {
-                     self.logScrollLatency();
-                }
-            });
-        }
+        $(window).scroll(function() {
+            self.lastScrolled = self.now();
+            if (!self.isCollectingScrollLatency) {
+                self.isCollectingScrollLatency = true;
+                self.lastRanScrollLatencyCollection = self.now();
+                setTimeout(function() {
+                    $.each(self._listeners, function(index,listener){ listener.onStart();});
+                    self.collectScrollLatency();
+                }, timeoutIntervalMS);
+            }
+        });
+        
+        self.addListener({
+            onStart: function () { self.resetScrollLatency(); },
+            onLatencyObserved: function (value) { self.setScrollLatency(value); },
+            onFinish: function () {
+                 self.logScrollLatency();
+            }
+        });
+
         return this;
     };
 
