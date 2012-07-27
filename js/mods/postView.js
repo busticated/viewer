@@ -38,6 +38,7 @@ define( [ 'jquery', 'libs/handlebars', 'mods/view', 'libs/polyfills' ], function
 
     PostView.prototype.setup = function(){
         this.$el.appendTo( '#js-poststream' ).waypoint();
+        this.$el.data( 'postModel', this.model );
         return this;
     };
 

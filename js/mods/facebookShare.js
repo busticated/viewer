@@ -15,6 +15,7 @@ define(['jquery', 'mods/mastercontrol' ], function ( $, mc ) {
         showCounts: true
     };
 
+    f.ROOT_URL = 'http://cheezburger.com/';
 
     f.setup = function ( cfg ) {
         $.extend( f.options, cfg );
@@ -37,14 +38,16 @@ define(['jquery', 'mods/mastercontrol' ], function ( $, mc ) {
             });
         });
 
-        mc.on( 'iscroll.newcontentadded', function( postData ){
+        mc.on( 'iscroll.newcontentadded', function( posts ){
             var countsNeeded = [];
 
-            $.each( postData, function( key, post ){
+            $.each( posts, function( key, post ){
                 countsNeeded.push( post.url );
             });
 
-            f.getCounts( countsNeeded ).then( f.broadcastCounts );
+            f.getCounts( countsNeeded ).then(function( counts ){
+                f.updatePosts( counts, posts );
+            });
         });
 
         return this;
@@ -80,6 +83,17 @@ define(['jquery', 'mods/mastercontrol' ], function ( $, mc ) {
         });
 
         mc.emit( 'fbshare.countsavailable', shares );
+
+        return this;
+    };
+
+    f.updatePosts = function( counts, posts ){
+        var post, count;
+        for ( var i = 0, l = posts.length; i < l; i += 1 ){
+            post = posts[ i ];
+            count = f.formatCount( counts[ f.ROOT_URL + post.id ].shares );
+            post.set( 'fbshares', count );
+        }
 
         return this;
     };
