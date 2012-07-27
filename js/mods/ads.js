@@ -115,8 +115,18 @@ define(['jquery', 'mods/utils', 'libs/handlebars', 'mods/mastercontrol', 'libs/p
 
     var fetch = function ( type, size, id ) {
         var init = function(){
+            var slot;
+
             type = setUniqueSlotType( type );
-            activeSlots[ type ] = googletag.defineSlot( SLUG + type, size, id ).addService( _service );
+            slot = googletag.defineSlot( SLUG + type, size, id );
+
+            slot.addService( _service );
+            slot.setTargeting( 'site', getSiteForTargeting() );
+            slot.setTargeting( 'page', getPageForTargeting() );
+            slot.setTargeting( 'registered', getRegisteredState() );
+
+            activeSlots[ type ] = slot;
+
             requestAnimationFrame(function(){
                 googletag.display( id );
             });
