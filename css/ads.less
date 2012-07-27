@@ -1,7 +1,12 @@
 .ad-container {
     &.ad-rotator {
-        position: fixed;
+        position: absolute;
         width: 960px;
+
+        &.is-fixed {
+            position: fixed;
+            top: 50px; 	
+        }
     }
 }
 

@@ -279,8 +279,12 @@ h2 {
 	.is-invalid
 */
 .ad-container.ad-rotator {
-  position: fixed;
+  position: absolute;
   width: 960px;
+}
+.ad-container.ad-rotator.is-fixed {
+  position: fixed;
+  top: 50px;
 }
 .ad-group {
   margin-top: 9999px;
