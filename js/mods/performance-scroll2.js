@@ -37,13 +37,14 @@ define(['jquery'], function ($) {
     o.getResults = function () {
 
         recording.sort(function (a, b) { return a - b });
-        var result = [];
+        var result = {};
 
         if (recording.length > 0) {
-            result.push(recording[Math.floor(0.5 * recording.length)]);
-            result.push(recording[Math.floor(0.95 * recording.length)]);
-            result.push(recording[Math.floor(0.98 * recording.length)]);
-            result.push(recording[recording.length - 1]);
+            result.percentile50 = Math.floor(0.5 * recording.length);
+            result.percentile75 = Math.floor(0.75 * recording.length);
+            result.percentile95 = Math.floor(0.95 * recording.length);
+            result.percentile98 = Math.floor(0.98 * recording.length);
+            result.max = recording[recording.length - 1];
         }
 
         return result;
