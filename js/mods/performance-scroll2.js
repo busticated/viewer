@@ -40,10 +40,10 @@ define(['jquery'], function ($) {
         var result = {};
 
         if (recording.length > 0) {
-            result.percentile50 = Math.floor(0.5 * recording.length);
-            result.percentile75 = Math.floor(0.75 * recording.length);
-            result.percentile95 = Math.floor(0.95 * recording.length);
-            result.percentile98 = Math.floor(0.98 * recording.length);
+            result.percentile50 = recording[Math.floor(0.5 * recording.length)];
+            result.percentile75 = recording[Math.floor(0.75 * recording.length)];
+            result.percentile95 = recording[Math.floor(0.95 * recording.length)];
+            result.percentile98 = recording[Math.floor(0.98 * recording.length)];
             result.max = recording[recording.length - 1];
         }
 
